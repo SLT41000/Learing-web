@@ -1,0 +1,274 @@
+﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9C144E07-EF67-47D3-B926-5BC5328A9B44}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Learing_web</RootNamespace>
+    <AssemblyName>Learing web</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort>44382</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <WcfConfigValidationEnabled>True</WcfConfigValidationEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\packages\BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.3, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13.3\lib\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp.xmlworker, Version=5.5.13.3, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itextsharp.xmlworker.5.5.13.3\lib\itextsharp.xmlworker.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Catalog.aspx" />
+    <Content Include="Certificate.aspx" />
+    <Content Include="file\ad.js" />
+    <Content Include="file\AdminLTE.min.css" />
+    <Content Include="file\adminlte.min.js" />
+    <Content Include="file\aframe.html" />
+    <Content Include="file\analytics.js" />
+    <Content Include="file\architectui-vue-pro-screenshot.jpg" />
+    <Content Include="file\bootstrap-datepicker.min.css" />
+    <Content Include="file\bootstrap-datepicker.min.js" />
+    <Content Include="file\bootstrap.min.css" />
+    <Content Include="file\bootstrap.min.js" />
+    <Content Include="file\bootstrap3-wysihtml5.all.min.js" />
+    <Content Include="file\bootstrap3-wysihtml5.min.css" />
+    <Content Include="file\dashboard.js" />
+    <Content Include="file\daterangepicker.css" />
+    <Content Include="file\daterangepicker.js" />
+    <Content Include="file\demo.js" />
+    <Content Include="file\f.txt" />
+    <Content Include="file\fastclick.js" />
+    <Content Include="file\font-awesome.min.css" />
+    <Content Include="file\ionicons.min.css" />
+    <Content Include="file\jquery-jvectormap-1.2.2.min.js" />
+    <Content Include="file\jquery-jvectormap-world-mill-en.js" />
+    <Content Include="file\jquery-jvectormap.css" />
+    <Content Include="file\jquery-ui.min.js" />
+    <Content Include="file\jquery.knob.min.js" />
+    <Content Include="file\jquery.min.js" />
+    <Content Include="file\jquery.slimscroll.min.js" />
+    <Content Include="file\jquery.sparkline.min.js" />
+    <Content Include="file\kero-html-pro-screenshot.jpg" />
+    <Content Include="file\moment.min.js" />
+    <Content Include="file\morris.css" />
+    <Content Include="file\morris.min.js" />
+    <Content Include="file\osd.js" />
+    <Content Include="file\raphael.min.js" />
+    <Content Include="file\saved_resource%281%29.html" />
+    <Content Include="file\saved_resource.html" />
+    <Content Include="file\user2-160x160.jpg" />
+    <Content Include="file\user3-128x128.jpg" />
+    <Content Include="file\user4-128x128.jpg" />
+    <Content Include="file\zrt_lookup.html" />
+    <Content Include="file\_all-skins.min.css" />
+    <Content Include="font\fontawesome-webfont.svg" />
+    <Content Include="font\glyphicons-halflings-regular.svg" />
+    <Content Include="home-icon.png" />
+    <Content Include="default.aspx" />
+    <Content Include="img\Applied mathematics.jfif" />
+    <Content Include="img\Biology.jfif" />
+    <Content Include="img\Calculus.png" />
+    <Content Include="img\Chemical.png" />
+    <Content Include="img\phy.png" />
+    <Content Include="img\Stt.png" />
+    <Content Include="Login.aspx" />
+    <Content Include="card.js" />
+    <Content Include="login.css" />
+    <Content Include="navbar.css" />
+    <Content Include="Service1.svc" />
+    <Content Include="Service2.svc" />
+    <Content Include="Service3.svc" />
+    <Content Include="Signin.aspx" />
+    <Content Include="StyleSheethome.css" />
+    <Content Include="img\tp204-certificate-05.jpg" />
+    <Content Include="img\tp204-certificate-05.png" />
+    <Content Include="urldata.js" />
+    <Content Include="videos.css" />
+    <Content Include="watch.aspx" />
+    <Content Include="Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Catalog.aspx.cs">
+      <DependentUpon>Catalog.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Catalog.aspx.designer.cs">
+      <DependentUpon>Catalog.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Certificate.aspx.cs">
+      <DependentUpon>Certificate.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Certificate.aspx.designer.cs">
+      <DependentUpon>Certificate.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="default.aspx.cs">
+      <DependentUpon>default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="default.aspx.designer.cs">
+      <DependentUpon>default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ICatalogdata.cs" />
+    <Compile Include="Igetvnarl.cs" />
+    <Compile Include="IService1.cs" />
+    <Compile Include="IService2.cs" />
+    <Compile Include="IService3.cs" />
+    <Compile Include="Ividdata.cs" />
+    <Compile Include="Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Data.cs" />
+    <Compile Include="member.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service1.svc.cs">
+      <DependentUpon>Service1.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Service2.svc.cs">
+      <DependentUpon>Service2.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Service3.svc.cs">
+      <DependentUpon>Service3.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Signin.aspx.cs">
+      <DependentUpon>Signin.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Signin.aspx.designer.cs">
+      <DependentUpon>Signin.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="watch.aspx.cs">
+      <DependentUpon>watch.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="watch.aspx.designer.cs">
+      <DependentUpon>watch.aspx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="file\css" />
+    <Content Include="file\sodar" />
+    <Content Include="font\fontawesome-webfont.eot" />
+    <Content Include="font\fontawesome-webfont.ttf" />
+    <Content Include="font\fontawesome-webfont.woff" />
+    <Content Include="font\fontawesome-webfont.woff2" />
+    <Content Include="font\FontAwesome.otf" />
+    <Content Include="font\glyphicons-halflings-regular.eot" />
+    <Content Include="font\glyphicons-halflings-regular.ttf" />
+    <Content Include="font\glyphicons-halflings-regular.woff" />
+    <Content Include="font\glyphicons-halflings-regular.woff2" />
+    <Content Include="font\ionicons.ttf" />
+    <Content Include="font\ionicons.woff" />
+    <None Include="packages.config" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>63344</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>https://localhost:44382/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
