@@ -1,19 +1,22 @@
 # ============================================================
 # Learing Web - Docker Compose
 # ============================================================
-# ASP.NET Web Forms (Windows container) + SQL Server (Linux container)
-# ------------------------------------------------------------
+# ASP.NET Web Forms (Windows container) + SQL Server Express
+# (Windows container — both services must run on Windows containers)
+#
+# IMPORTANT: Docker Desktop must be in Windows containers mode.
+#
 # Usage:
-#   docker compose up -d          # Start the full stack
-#   docker compose down           # Stop and remove containers
+#   docker compose up -d          # Start everything
+#   docker compose down           # Stop and remove
 #   docker compose logs -f        # View logs
-#   docker compose down -v        # Remove volumes ( wipe data)
+#   docker compose down -v        # Remove volumes too (wipe DB)
 # ============================================================
 
 version: "3.8"
 
 services:
-  # ---- Web application (Windows container) ----
+  # ---- ASP.NET Web Application (Windows container) ----
   web:
     build:
       context: .
@@ -22,19 +25,13 @@ services:
     ports:
       - "8080:80"
     environment:
-      # ConnectionStrings.config is mounted as a volume,
-      # so no env variable override needed (config file is used)
-      - ASPNETCORE_ENVIRONMENT=Production
+      # Connection string pointing to the SQL Server container
+      - ConnectionString=Data Source=sqlserver;Initial Catalog=Learningweb;User Id=sa;Password=YourStrong@Passw0rd1;
     depends_on:
       - sqlserver
-    volumes:
-      # Mount ConnectionStrings.config into the container
-      - ./ConnectionStrings.config:/inetpub/wwwroot/ConnectionStrings.config:ro
     restart: unless-stopped
-    # Windows container, so platform must be specified
-    platform: windows/amd64
 
-  # ---- SQL Server (Linux container, much lighter) ----
+  # ---- SQL Server Express (Windows container) ----
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: learning-sqlserver
@@ -42,12 +39,11 @@ services:
       - "1433:1433"
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong@Passw0rd
+      - SA_PASSWORD=YourStrong@Passw0rd1
       - MSSQL_PID=Developer
     volumes:
-      - sql-data:/var/opt/mssql
+      - sql-data:C:/var/opt/mssql
     restart: unless-stopped
 
 volumes:
   sql-data:
-    driver: local
