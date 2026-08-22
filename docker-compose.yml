@@ -1,22 +1,7 @@
-# ============================================================
-# Learing Web - Docker Compose
-# ============================================================
-# ASP.NET Web Forms (Windows container) + SQL Server Express
-# (Windows container — both services must run on Windows containers)
-#
-# IMPORTANT: Docker Desktop must be in Windows containers mode.
-#
-# Usage:
-#   docker compose up -d          # Start everything
-#   docker compose down           # Stop and remove
-#   docker compose logs -f        # View logs
-#   docker compose down -v        # Remove volumes too (wipe DB)
-# ============================================================
-
 version: "3.8"
 
 services:
-  # ---- ASP.NET Web Application (Windows container) ----
+  # ---- ASP.NET Core Web App (Linux container) ----
   web:
     build:
       context: .
@@ -25,13 +10,14 @@ services:
     ports:
       - "8080:80"
     environment:
-      # Connection string pointing to the SQL Server container
-      - ConnectionString=Data Source=sqlserver;Initial Catalog=Learningweb;User Id=sa;Password=YourStrong@Passw0rd1;
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - CONNECTION_STRING=Server=sqlserver,1433;Database=Learningweb;User Id=sa;Password=YourStrong@Passw0rd1;TrustServerCertificate=True;
     depends_on:
       - sqlserver
     restart: unless-stopped
 
-  # ---- SQL Server Express (Windows container) ----
+  # ---- SQL Server (Linux container) ----
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: learning-sqlserver
@@ -42,7 +28,7 @@ services:
       - SA_PASSWORD=YourStrong@Passw0rd1
       - MSSQL_PID=Developer
     volumes:
-      - sql-data:C:/var/opt/mssql
+      - sql-data:/var/opt/mssql
     restart: unless-stopped
 
 volumes:

@@ -13,7 +13,7 @@ public class WatchModel : PageModel
     public string UserName { get; set; } = string.Empty;
     public bool Authorized { get; set; }
 
-    public void OnGet()
+    public async Task OnGetAsync()
     {
         Authorized = !string.IsNullOrEmpty(HttpContext.Session.GetString("uname"));
         UserName = HttpContext.Session.GetString("uname") ?? "";
@@ -32,6 +32,12 @@ public class WatchModel : PageModel
             VideoName = vname ?? "Untitled Video";
             VideoLink = vlink ?? "";
             Description = vdes ?? "";
+
+            // Record check-in if user is authorized and video has a link
+            if (!string.IsNullOrEmpty(VideoLink) && !string.IsNullOrEmpty(HttpContext.Session.GetString("aid")))
+            {
+                await RecordCheckInAsync(vid!);
+            }
         }
         else
         {
@@ -40,5 +46,20 @@ public class WatchModel : PageModel
             VideoLink = "";
             Description = "Please select a course from the home page.";
         }
+    }
+
+    private async Task RecordCheckInAsync(string vid)
+    {
+        var aid = HttpContext.Session.GetString("aid")!;
+        var ontime = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
+
+        await Task.Run(() =>
+            DbHelper.ExecuteNonQuery(
+                "INSERT INTO catalog (aid, vid, ontime) VALUES (@aid, @vid, @ontime)",
+                new SqlParameter("@aid", aid),
+                new SqlParameter("@vid", vid),
+                new SqlParameter("@ontime", ontime)
+            )
+        );
     }
 }

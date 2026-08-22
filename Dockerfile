@@ -1,40 +1,29 @@
-# =============================================================
-# Dockerfile for Learing Web (ASP.NET Web Forms, .NET Framework 4.7.2)
-# =============================================================
-# REQUIRES Windows containers mode in Docker Desktop.
-# Switch: Docker tray menu -> "Switch to Windows containers..."
-#
-# Build:   docker build -t learing-web .
-# Run:     docker run -d -p 8080:80 --name learing-web learing-web
-# =============================================================
+# ============================================================
+# Learing Web - Dockerfile (ASP.NET Core 8, Linux containers)
+# ============================================================
+# Build:   docker build -t learning-web .
+# Run:     docker run -d -p 8080:80 --name learning-web learning-web
+# Compose: docker compose up -d
+# ============================================================
 
-FROM mcr.microsoft.com/dotnet/framework/sdk:4.7.2-windowsservercore-ltsc2019 AS build
-
+# ---- Stage 1: Publish the app ----
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Restore NuGet packages
-COPY ["Learing web/Learing web.csproj", "Learing web/"]
-COPY ["Learing web/packages.config", "Learing web/"]
-RUN nuget restore "Learing web/Learing web.csproj"
+# Copy project file and restore dependencies (cached layer)
+COPY ["LearingWeb/LearingWeb.csproj", "./"]
+RUN dotnet restore "LearingWeb.csproj"
 
-# Copy project source and build
-COPY "Learing web/" "Learing web/"
-WORKDIR "/src/Learing web"
-RUN msbuild "Learing web.csproj" /t:Build /p:Configuration=Release /p:DeployIisAppPath="Default Web Site"
+# Copy all source files and publish
+COPY LearingWeb/. .
+RUN dotnet publish "LearingWeb.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Stage 2: IIS runtime
-FROM mcr.microsoft.com/dotnet/framework/aspnet:4.7.2-windowsservercore-ltsc2019
+# ---- Stage 2: Runtime image (Linux, ASP.NET 8) ----
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
 
-WORKDIR C:/inetpub/wwwroot
-
-# Copy built application from build stage
-COPY --from=build "C:/src/Learing web/" C:/inetpub/wwwroot/
-
-# Remove default IIS start page
-RUN Remove-Item -Recurse -Force C:/inetpub/wwwroot/iisstart.htm -ErrorAction SilentlyContinue; \
-    Remove-Item -Recurse -Force C:/inetpub/wwwroot/iisstart.png -ErrorAction SilentlyContinue
+COPY --from=build /app/publish .
 
 EXPOSE 80
 
-# IIS starts automatically; keep container running
-CMD ["C:\\ServiceMonitor.exe", "C:\\inetpub\\wwwroot"]
+ENTRYPOINT ["dotnet", "LearingWeb.dll"]
