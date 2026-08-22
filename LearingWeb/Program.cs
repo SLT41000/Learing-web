@@ -16,8 +16,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 LearingWeb.DbHelper.ConnectionString = connectionString;
 
 // Add Razor Pages
-builder.Services.AddRazorPages()
-    .AddRazorRuntimeCompilation();
+builder.Services.AddRazorPages();
 
 builder.Services.AddSession(options =>
 {
