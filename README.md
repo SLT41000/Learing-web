@@ -1,1 +1,80 @@
-This is my first web-appication app using .net framework in subject database.
+# Learing Web
+
+A .NET Framework ASP.NET Web Forms learning platform — an educational web application for browsing, watching, and tracking progress through video courses across multiple subjects.
+
+## Features
+
+- **Course Catalog** — Browse video courses by subject (Physics, Chemistry, Biology, Calculus, Statistics, Applied Mathematics)
+- **User Authentication** — Register and login with username/password
+- **Subject Enrollment** — Users select subjects during signup; the home page filters to enrolled subjects only
+- **Video Player** — Watch course videos with a responsive 16:9 iframe player
+- **Progress Tracking** — "Check In" to record when you start a video; "Mark as Watched" to track completion
+- **Certificate Gallery** — View certificates for courses you've completed
+- **Watch History** — Catalog page shows all videos you've started watching with dates
+
+## Project Structure
+
+```
+Learing-web/
+├── Learing web/
+│   ├── default.aspx          — Home page with subject cards
+│   ├── default.aspx.cs       — Home page code-behind (auth, subject filtering)
+│   ├── Login.aspx            — Login page
+│   ├── Login.aspx.cs         — Login logic (auth, session setup)
+│   ├── Signin.aspx           — Registration page
+│   ├── Signin.aspx.cs        — Registration logic (account creation, subject selection)
+│   ├── watch.aspx            — Video player page
+│   ├── watch.aspx.cs         — Video check-in / mark-watched handlers
+│   ├── Catalog.aspx          — Watch history table
+│   ├── Catalog.aspx.cs       — Catalog data retrieval
+│   ├── Certificate.aspx      — Earned certificates gallery
+│   ├── Certificate.aspx.cs   — Certificate page code-behind
+│   ├── urldata.js            — Parses URL params to load video info
+│   ├── DbHelper.cs           — Database helper (parameterized queries)
+│   ├── member.cs             — Member data model
+│   ├── StyleSheethome.css    — Main stylesheet
+│   ├── videos.css            — Video page styles
+│   ├── navbar.css            — Navbar overrides
+│   ├── login.css             — Login page styles
+│   ├── Service1.svc          — WCF service: get all videos
+│   ├── Service2.svc          — WCF service: get user's watch history
+│   ├── Service3.svc          — WCF service: get user's completed videos
+│   └── img/                  — Subject icons and certificate image
+└── README.md
+```
+
+## Tech Stack
+
+- **Framework**: ASP.NET Web Forms (.NET Framework)
+- **Frontend**: Bootstrap 4.6.1, jQuery 3.6.0, custom CSS
+- **Backend**: C# code-behind, WCF Services (REST/JSON)
+- **Database**: SQL Server (via ADO.NET with parameterized queries)
+- **Authentication**: ASP.NET Session state
+
+## Security Improvements
+
+All SQL queries now use parameterized statements to prevent SQL injection. The legacy string-concatenation queries have been replaced with `DbHelper` utility methods.
+
+## Getting Started
+
+1. Open the solution in Visual Studio
+2. Configure the SQL Server connection string in `web.config` (key: `strconn`)
+3. Build and run on IIS Express or deploy to IIS
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/Service1.svc/getScreenData` | GET | Returns all video courses (JSON) |
+| `/Service2.svc/Submit_Click?aid={aid}` | GET | Returns user's watch history (JSON) |
+| `/Service3.svc/getalrdy?aid={aid}` | GET | Returns user's completed videos (JSON) |
+
+## Future Enhancements
+
+- Password hashing (currently stored in plain text)
+- ASP.NET membership/identity integration
+- Video progress tracking with actual playback position
+- PDF certificate generation
+- Search and filter functionality
+- Admin dashboard for course management
+- Responsive video player with play/pause controls

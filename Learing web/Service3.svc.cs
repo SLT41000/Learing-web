@@ -15,33 +15,26 @@ namespace Learing_web
     {
         public Getnaarl[] getalrdy(string aid)
         {
-            List<Getnaarl> retVal = new List<Getnaarl>();
-            SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["strconn"].ConnectionString);
-            SqlCommand cmd = new SqlCommand(
-              "SELECT v.vname,w.aid FROM watchcheck AS w INNER JOIN video as v ON (v.vid=w.vid AND w.aid=" + aid + " AND w.alreadywatch=1);"
-
-
-            , conn);
-            conn.Open();
-
-
-            SqlDataReader rdr = cmd.ExecuteReader();
-
-            while (rdr.Read())
+            var retVal = new List<Getnaarl>();
+            using (var conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["strconn"].ConnectionString))
             {
-                Getnaarl a = new Getnaarl();
-                a.vname = rdr[0].ToString();
-
-
-
-
-                retVal.Add(a);
-
+                using (var cmd = new SqlCommand(
+                    "SELECT v.vname FROM watchcheck AS w INNER JOIN video AS v ON (v.vid = w.vid) WHERE w.aid = @aid AND w.alreadywatch = 1",
+                    conn))
+                {
+                    cmd.Parameters.AddWithValue("@aid", aid);
+                    conn.Open();
+                    using (var rdr = cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            Getnaarl a = new Getnaarl();
+                            a.vname = rdr[0].ToString();
+                            retVal.Add(a);
+                        }
+                    }
+                }
             }
-
-            rdr.Close();
-            conn.Close();
-
             return retVal.ToArray();
         }
     }

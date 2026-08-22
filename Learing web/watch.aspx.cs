@@ -5,7 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Web;
-using System.Web.Configuration;
+using System.WebConfiguration;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.Services;
@@ -21,45 +21,41 @@ namespace Learing_web
             {
                 Response.Redirect("~/default.aspx");
             }
-            
         }
-        
-        public  void onchickvideo(object sender, EventArgs e)
+
+        /// <summary>
+        /// Records that the user started watching a video (check-in).
+        /// </summary>
+        public void onchickvideo(object sender, EventArgs e)
         {
+            string vid = Request["vid"];
+            if (string.IsNullOrEmpty(vid))
+                return;
 
-            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["strconn"].ConnectionString);
-            
-
-            con.Open();
-            SqlCommand cmdSql = new SqlCommand("INSERT INTO catalog VALUES(@aid, @vid,@ontime) ", con);
-            
-            cmdSql.Parameters.AddWithValue("@aid", Session["aid"]);
-            cmdSql.Parameters.AddWithValue("@vid", Request["vid"]);
-            cmdSql.Parameters.AddWithValue("@ontime", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"));
-            cmdSql.ExecuteNonQuery();
-            
-            con.Close();
-
-            
-             
+            // Use parameterized query
+            DbHelper.ExecuteNonQuery(
+                "INSERT INTO catalog (aid, vid, ontime) VALUES (@aid, @vid, @ontime)",
+                DbHelper.Param("@aid", Session["aid"]),
+                DbHelper.Param("@vid", vid),
+                DbHelper.Param("@ontime", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"))
+            );
         }
+
+        /// <summary>
+        /// Marks a video as already watched.
+        /// </summary>
         public void onchickalreadyw(object sender, EventArgs e)
         {
+            string vid = Request["vid"];
+            if (string.IsNullOrEmpty(vid))
+                return;
 
-            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["strconn"].ConnectionString);
-
-
-            con.Open();
-            SqlCommand cmdSql = new SqlCommand("UPDATE watchcheck SET alreadywatch = 1 WHERE aid = " + Session["aid"]+" AND vid="+ Request["vid"]+";", con);
-
-           
-            cmdSql.ExecuteNonQuery();
-
-            con.Close();
-
-
-
+            // Use parameterized UPDATE query
+            DbHelper.ExecuteNonQuery(
+                "UPDATE watchcheck SET alreadywatch = 1 WHERE aid = @aid AND vid = @vid",
+                DbHelper.Param("@aid", Session["aid"]),
+                DbHelper.Param("@vid", vid)
+            );
         }
-
     }
 }

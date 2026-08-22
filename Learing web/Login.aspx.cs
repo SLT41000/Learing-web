@@ -7,9 +7,9 @@ using System.Reflection.Emit;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Web.Configuration;
-using System.Drawing;
+using System.WebConfiguration;
 using System.Configuration;
+using System.Drawing;
 
 namespace Learing_web
 {
@@ -25,65 +25,45 @@ namespace Learing_web
 
         protected void Submit_Click(object sender, EventArgs e)
         {
-            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["strconn"].ConnectionString);
-
-            SqlCommand cmd = new SqlCommand("select * from account where uname=@uname and password=@password", con);
-            cmd.Parameters.AddWithValue("@uname", userbox.Value);
-            cmd.Parameters.AddWithValue("@password", pbox.Value);
-            SqlDataAdapter sda = new SqlDataAdapter(cmd);
-            DataTable dt = new DataTable();
-            sda.Fill(dt);
-            con.Open();
-
-
+            // Use parameterized query to prevent SQL injection
+            var dt = DbHelper.ExecuteQuery(
+                "SELECT * FROM account WHERE uname=@uname AND password=@password",
+                DbHelper.Param("@uname", userbox.Value),
+                DbHelper.Param("@password", pbox.Value)
+            );
 
             if (dt.Rows.Count > 0)
             {
+                // Get account ID from the already-loaded DataTable
+                string a = dt.Rows[0][0].ToString();
 
-                List<memberdata> retVal = new List<memberdata>();
-                var cmdSql1 = new SqlCommand("SELECT *  FROM account \nWHERE uname = '" + userbox.Value + "' AND password='" + pbox.Value + "'", con);
-                SqlDataReader reader = cmdSql1.ExecuteReader();
-                string a = "";
-                while (reader.Read())
-                {
-                    a = reader[0].ToString();
+                Session["aid"] = a;
 
-                }
-                reader.Close();
-
-
-
-
-
-
-
-
-
-
-
-                Session["aid"] = readaid();
                 memberdata[] m = getmdata();
-                string[] member = new string[m.Length] ;
-                
+                string[] member = new string[m.Length];
+
                 for (int i = 0; i < m.Length; i++)
                 {
-                     
-                    Session["mid-"+ m[i].mid] = true;
+                    member[i] = m[i].mid.ToString();
+                    Session["mid-" + m[i].mid] = true;
                 }
                 Session["mid"] = member;
 
                 Viddata[] vid = addwatchcheck(m);
-                
-                for (int i = 0; i < vid.Length; i++)
-                {
-                    SqlCommand cmdSql = new SqlCommand("INSERT INTO watchcheck (aid, vid, mid, alreadywatch)\r\nVALUES (N'" + Session["aid"] +"', N'"+ vid[i].vid + "', N'"+ vid[i].mid + "', N'"+0+"');", con);
-                    cmdSql.ExecuteNonQuery();
-                    
-                }
-                
-                Session["uname"] = userbox.Value;
-                
 
+                // Use parameterized INSERT for watchcheck
+                foreach (Viddata v in vid)
+                {
+                    DbHelper.ExecuteNonQuery(
+                        "INSERT INTO watchcheck (aid, vid, mid, alreadywatch) VALUES (@aid, @vid, @mid, @alreadywatch)",
+                        DbHelper.Param("@aid", Session["aid"]),
+                        DbHelper.Param("@vid", v.vid),
+                        DbHelper.Param("@mid", v.mid),
+                        DbHelper.Param("@alreadywatch", 0)
+                    );
+                }
+
+                Session["uname"] = userbox.Value;
                 Response.Redirect("default.aspx");
             }
             else
@@ -91,137 +71,77 @@ namespace Learing_web
                 Label1.Text = "Your username and password is incorrect";
                 Label1.ForeColor = System.Drawing.Color.White;
             }
-            con.Close();
         }
+
         protected void BSingin_Click(object sender, EventArgs e)
         {
             Response.Redirect("~/Signin.aspx");
         }
+
         protected void ImageButton1_Click(object sender, ImageClickEventArgs e)
         {
             Response.Redirect("~/default.aspx");
         }
 
-        protected string readaid()
-        {  
-            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["strconn"].ConnectionString);
-            con.Open();
-            var cmdSql1 = new SqlCommand("SELECT *  FROM account \nWHERE uname = '" + userbox.Value + "' AND password='" + pbox.Value + "'", con);
-            SqlDataReader reader = cmdSql1.ExecuteReader();
-            string a = "";
-            while (reader.Read())
-            {
-                a = reader[0].ToString();
-
-            }
-            reader.Close();
-            con.Close();
-            return a;
-
-        }
-
         protected void pbox_TextChanged(object sender, EventArgs e)
         {
-            
-
-            
         }
-
 
         protected Viddata[] addwatchcheck(memberdata[] mid)
         {
-            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["strconn"].ConnectionString);
+            // Check if watchcheck entries already exist for this account
+            var existing = DbHelper.ExecuteQuery(
+                "SELECT vid, mid FROM watchcheck WHERE aid=@aid",
+                DbHelper.Param("@aid", Session["aid"])
+            );
 
-            SqlCommand cmd = new SqlCommand("select * from watchcheck where aid=@aid ", con);
-            cmd.Parameters.AddWithValue("@aid", Session["aid"]);
-            
-            SqlDataAdapter sda = new SqlDataAdapter(cmd);
-            DataTable dt = new DataTable();
-            sda.Fill(dt);
-            con.Open();
-
-            List<Viddata> retVal = new List<Viddata>();
-
-            if (dt.Rows.Count == 0)
+            if (existing.Rows.Count > 0)
             {
-                
-                for (int i = 0; i < mid.Length; i++)
-                {
-                    var cmdSql1 = new SqlCommand("SELECT v.vid FROM video AS v WHERE v.mid=" + mid[i].mid, con);
-                    SqlDataReader reader = cmdSql1.ExecuteReader();
-                    
-                    while (reader.Read())
-                    {
-                        Viddata a = new Viddata();
-                        a.vid= reader[0].ToString();
-                        a.mid = mid[i].mid;
-                        retVal.Add(a);
-                    }
-                    reader.Close();
-
-
-                }
-
-
-
-               
-                con.Close();
-
-
-
-
-
-
-               
-
-
-
-
-
+                // Return empty array if entries already exist
+                return new Viddata[0];
             }
-            
+
+            // Get all videos for the member's subjects
+            var retVal = new List<Viddata>();
+
+            foreach (memberdata m in mid)
+            {
+                var videos = DbHelper.ExecuteQuery(
+                    "SELECT v.vid FROM video AS v WHERE v.mid=@mid",
+                    DbHelper.Param("@mid", m.mid)
+                );
+
+                foreach (DataRow row in videos.Rows)
+                {
+                    retVal.Add(new Viddata
+                    {
+                        vid = row[0].ToString(),
+                        mid = m.mid
+                    });
+                }
+            }
+
             return retVal.ToArray();
-
         }
-
 
         public memberdata[] getmdata()
         {
-            List<memberdata> retVal = new List<memberdata>();
+            var retVal = new List<memberdata>();
 
             string a = Session["aid"].ToString();
-            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["strconn"].ConnectionString);
 
-            var cmdSql2 = new SqlCommand("SELECT mid  FROM accountmember  where accountmember.aid=" + a, con);
+            DbHelper.ReadQuery(
+                "SELECT mid FROM accountmember WHERE accountmember.aid=@aid",
+                reader =>
+                {
+                    memberdata m = new memberdata();
+                    m.mid = reader[0].ToString();
+                    retVal.Add(m);
+                },
+                DbHelper.Param("@aid", a)
+            );
 
-            con.Open();
-
-            SqlDataReader reader = cmdSql2.ExecuteReader();
-            
-            while (reader.Read())
-            {
-                memberdata m = new memberdata();
-                m.mid = reader[0].ToString();
-                
-                retVal.Add(m);
-
-            }
-            
-            
-            reader.Close();
-            con.Close();
-           
-               
             return retVal.ToArray();
-
-
-
-
-
-
-
         }
-
-
     }
 }

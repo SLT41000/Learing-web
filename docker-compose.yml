@@ -1,0 +1,53 @@
+# ============================================================
+# Learing Web - Docker Compose
+# ============================================================
+# ASP.NET Web Forms (Windows container) + SQL Server (Linux container)
+# ------------------------------------------------------------
+# Usage:
+#   docker compose up -d          # Start the full stack
+#   docker compose down           # Stop and remove containers
+#   docker compose logs -f        # View logs
+#   docker compose down -v        # Remove volumes ( wipe data)
+# ============================================================
+
+version: "3.8"
+
+services:
+  # ---- Web application (Windows container) ----
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: learning-web
+    ports:
+      - "8080:80"
+    environment:
+      # ConnectionStrings.config is mounted as a volume,
+      # so no env variable override needed (config file is used)
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - sqlserver
+    volumes:
+      # Mount ConnectionStrings.config into the container
+      - ./ConnectionStrings.config:/inetpub/wwwroot/ConnectionStrings.config:ro
+    restart: unless-stopped
+    # Windows container, so platform must be specified
+    platform: windows/amd64
+
+  # ---- SQL Server (Linux container, much lighter) ----
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: learning-sqlserver
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer
+    volumes:
+      - sql-data:/var/opt/mssql
+    restart: unless-stopped
+
+volumes:
+  sql-data:
+    driver: local

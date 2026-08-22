@@ -1,146 +1,374 @@
-﻿
+﻿/* ============================================================
+   Learing Web — Stylesheet
+   ============================================================ */
 
-@import url(https://fonts.googleapis.com/css?family=Roboto:400,100,900);
+/* ---- Google Font ---- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700;900&display=swap');
 
-html,
+/* ---- CSS Variables (theme) ---- */
+:root {
+    --primary: #0d6efd;
+    --primary-dark: #0b5ed7;
+    --secondary: #6c757d;
+    --accent: #ffc107;
+    --bg-dark: #343a40;
+    --bg-card: #2d3748;
+    --text-light: #f8f9fa;
+    --text-muted: #adb5bd;
+    --border-radius: 12px;
+}
 
+/* ---- Reset & Base ---- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--primary-dark);
+}
+
+/* ---- Navbar ---- */
+.navbar {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+.navbar-nav .nav-link {
+    color: var(--text-light) !important;
+    font-weight: 500;
+    margin-right: 8px;
+    transition: color 0.2s;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--accent) !important;
+}
+
+.navbar-nav .nav-link.active {
+    color: var(--accent) !important;
+}
+
+/* ---- Main Layout ---- */
 .wrapper {
-    display: table;
-    height: 100%;
-    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px 10px;
 }
 
 .container-fostrap {
-    display: table-cell;
+    display: flex;
     padding: 1em;
     text-align: center;
-    vertical-align: middle;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 }
 
-.fostrap-logo {
-    width: 100px;
-    margin-bottom: 15px
+.content {
+    width: 100%;
+    max-width: 1200px;
 }
 
-h1.heading {
-    color: #fff;
-    font-size: 1.15em;
-    font-weight: 900;
-    margin: 0 0 0.5em;
-    color: #505050;
-}
-
-@media (min-width: 450px) {
-    h1.heading {
-        font-size: 3.55em;
-    }
-}
-
-@media (min-width: 760px) {
-    h1.heading {
-        font-size: 3.05em;
-    }
-}
-
-@media (min-width: 900px) {
-    h1.heading {
-        font-size: 3.25em;
-        margin: 0 0 0.3em;
-    }
+/* ---- Cards ---- */
+.main-card {
+    width: 100%;
 }
 
 .card {
-    display: block;
-    margin-bottom: 20px;
-    line-height: 1.42857143;
-    background-color: #fff;
-    border-radius: 2px;
-    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
-    transition: box-shadow .25s;
+    background-color: var(--bg-card);
+    border: 1px solid #4a5568;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: box-shadow 0.25s, transform 0.25s;
+    overflow: hidden;
+    height: 100%;
 }
 
-    .card:hover {
-        box-shadow: 0 8px 17px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
-    }
+.card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    transform: translateY(-4px);
+}
 
 .img-card {
     width: 100%;
     height: 200px;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
     display: block;
     overflow: hidden;
 }
 
-    .img-card img {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-        transition: all .25s ease;
-    }
+.img-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.card:hover .img-card img {
+    transform: scale(1.05);
+}
 
 .card-content {
-    padding: 15px;
+    padding: 15px 20px;
     text-align: left;
 }
 
 .card-title {
-    margin-top: 0px;
+    margin-top: 0;
     font-weight: 700;
-    font-size: 1.65em;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
 }
 
-    .card-title a {
-        color: #000;
-        text-decoration: none !important;
-    }
+.card-title a {
+    color: var(--text-light);
+    text-decoration: none;
+}
+
+.card-title a:hover {
+    color: var(--accent);
+}
 
 .card-read-more {
-    border-top: 1px solid #D4D4D4;
+    border-top: 1px solid #4a5568;
+    padding: 10px 20px;
 }
 
-    .card-read-more a {
-        text-decoration: none !important;
-        padding: 10px;
-        font-weight: 600;
-        text-transform: uppercase
+/* ---- Forms ---- */
+input[type=text],
+input[type=password],
+input[type=email] {
+    background-color: rgba(255,255,255,0.08);
+    border: 2px solid #4a5568;
+    color: #fff;
+    padding: 14px 20px;
+    font-size: 1rem;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    margin-bottom: 1rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+input[type=text]:focus,
+input[type=password]:focus,
+input[type=email]:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+}
+
+input[type=text]::placeholder,
+input[type=password]::placeholder {
+    color: #6c757d;
+}
+
+input[type=button],
+input[type=submit],
+input[type=reset],
+button.btn {
+    background-color: var(--primary);
+    border: none;
+    color: white;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.15s;
+    font-family: 'Poppins', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+input[type=button]:hover,
+input[type=submit]:hover,
+input[type=reset]:hover,
+button.btn:hover {
+    background-color: var(--primary-dark);
+}
+
+input[type=button]:active,
+input[type=submit]:active,
+input[type=reset]:active,
+button.btn:active {
+    transform: scale(0.97);
+}
+
+/* ---- Button Variants ---- */
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #157347;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+/* ---- Labels & Messages ---- */
+label {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.text-info {
+    color: var(--primary) !important;
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* ---- Dropdown / Select ---- */
+select.form-control {
+    background-color: rgba(255,255,255,0.08);
+    border: 2px solid #4a5568;
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+select.form-control option {
+    background-color: #2d3748;
+    color: #fff;
+}
+
+/* ---- Tables ---- */
+.table-dark {
+    background-color: var(--bg-card);
+    border-color: #4a5568;
+}
+
+.table-dark thead th {
+    background-color: #1a202c;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #4a5568;
+}
+
+.table-dark tbody td {
+    color: var(--text-light);
+    padding: 12px 16px;
+    font-size: 0.95rem;
+}
+
+.table-dark tbody tr {
+    transition: background-color 0.15s;
+}
+
+.table-dark tbody tr:hover {
+    background-color: rgba(255,255,255,0.05);
+}
+
+/* ---- Title / Heading ---- */
+h3.heading {
+    font-size: 1.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 1.9rem;
+}
+
+h1.heading {
+    color: var(--text-light);
+    font-size: 1.15em;
+    font-weight: 900;
+    margin: 0 0 0.5em;
+}
+
+h2 {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* ---- Responsive tweaks ---- */
+@media (max-width: 768px) {
+    .container-fostrap {
+        padding: 0.5em;
     }
 
-/* Sidebar */
-.sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    padding: 58px 0 0; /* Height of navbar */
-    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 5%), 0 2px 10px 0 rgb(0 0 0 / 5%);
-    width: 240px;
-    z-index: 600;
-}
+    .card {
+        margin-bottom: 1rem;
+    }
 
-@media (max-width: 991.98px) {
-    .sidebar {
-        width: 100%;
+    .img-card {
+        height: 180px;
+    }
+
+    .img-card img {
+        height: 180px;
+    }
+
+    select.form-control {
+        max-width: 100%;
+        margin-bottom: 1rem;
     }
 }
 
-.sidebar .active {
-    border-radius: 5px;
-    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
+/* ---- Animations ---- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-.sidebar-sticky {
-    position: relative;
-    top: 0;
-    height: calc(100vh - 48px);
-    padding-top: 0.5rem;
-    overflow-x: hidden;
-    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-}
-@media (min-width: 991.98px) {
-    main {
-        padding-left: 240px;
-    }
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
 }
 
+/* ---- Loading Spinner ---- */
+.loading-spinner {
+    text-align: center;
+    padding: 50px 0;
+    color: var(--text-muted);
+}
+
+.loading-spinner .spinner-border {
+    width: 3.5rem;
+    height: 3.5rem;
+    color: var(--primary);
+    border-width: 0.3em;
+}
+
+/* ---- Utility ---- */
+.text-center { text-align: center; }
+.py-5 { padding-top: 3rem; padding-bottom: 3rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mb-2 { margin-bottom: 0.5rem; }

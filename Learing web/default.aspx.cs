@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Data;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Web;
-using System.Web.Configuration;
+using System.WebConfiguration;
 using System.Web.Services;
 using System.Web.Services.Protocols;
 using System.Web.UI;
@@ -16,45 +17,29 @@ namespace Learing_web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["uname"] != null)
+            {
+                sslog.InnerHtml = (string)Session["uname"];
+                Certificate.Visible = true;
+                catalog.Visible = true;
+                logout.Visible = true;
+                signin.Visible = false;
+                login.Visible = false;
 
-
-            
-
-                
-
-                if (Session["uname"] != null)
+                memberdata[] m = getmdata();
+                string[] mid = new string[m.Length];
+                for (int i = 0; i < m.Length; i++)
                 {
-                    sslog.InnerHtml = (string)Session["uname"];
-                    Certificate.Visible = true;
-                    catalog.Visible = true;
-                    logout.Visible = true;
-                    signin.Visible = false;
-                    login.Visible = false;
+                    mid[i] = m[i].mid.ToString();
+                }
 
-                    memberdata[] m = getmdata();
-                    string[] mid = new string[m.Length];
-                    for (int i = 0; i < m.Length; i++)
-                    {
-                        mid[i] = m[i].mid.ToString();
-
-                    }
-
-                    hidecata(mid);
-
-
-                
-
+                hidecata(mid);
             }
         }
 
         protected void ImageButton1_Click(object sender, ImageClickEventArgs e)
         {
             Response.Redirect("~/default.aspx");
-        }
-
-        protected void TextBox1_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         protected void BLogin_Click(object sender, EventArgs e)
@@ -66,71 +51,61 @@ namespace Learing_web
         {
             Response.Redirect("~/Signin.aspx");
         }
-        
+
         protected void Blogout_Click(object sender, EventArgs e)
         {
-            
-                Session.Clear();
-                logout.Visible = false;
-                signin.Visible = true;
-            Certificate.Visible=false;
-                login.Visible = true;
-                sslog.InnerHtml = "";
+            Session.Clear();
+            logout.Visible = false;
+            signin.Visible = true;
+            Certificate.Visible = false;
+            login.Visible = true;
+            sslog.InnerHtml = "";
             hidden.InnerHtml = "";
             catalog.Visible = false;
             Response.Redirect("~/default.aspx");
-
         }
 
         protected void hidecata(string[] mid)
         {
-            for(int i = 1; i < 7; i++)
+            // Remove subjects the user is NOT enrolled in from the dropdown
+            for (int i = 1; i < 7; i++)
             {
+                bool enrolled = false;
                 for (int j = 0; j < mid.Length; j++)
                 {
                     if (mid[j] == i.ToString())
                     {
-                       break;
-                    }
-                    else if(j == mid.Length-1)
-                    {
-                        ListItem removeItem = classDrpDwn.Items.FindByValue(i.ToString());
-                        classDrpDwn.Items.Remove(removeItem);
+                        enrolled = true;
+                        break;
                     }
                 }
-                
+
+                if (!enrolled)
+                {
+                    ListItem removeItem = classDrpDwn.Items.FindByValue(i.ToString());
+                    if (removeItem != null)
+                        classDrpDwn.Items.Remove(removeItem);
+                }
             }
-           
         }
+
         protected memberdata[] getmdata()
         {
-            List<memberdata> retVal = new List<memberdata>();
-            String a=Session["aid"].ToString();
-            
-            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["strconn"].ConnectionString);
+            var retVal = new List<memberdata>();
+            string a = Session["aid"].ToString();
 
-            var cmdSql2 = new SqlCommand("SELECT mid  FROM accountmember  where accountmember.aid=" + a, con);
-
-            con.Open();
-
-            SqlDataReader reader = cmdSql2.ExecuteReader();
-            
-            while (reader.Read())
-            {
-                memberdata m = new memberdata();
-                m.mid = reader[0].ToString();
-                
-                retVal.Add(m);
-
-            }
-        
-            reader.Close();
-            con.Close();
+            DbHelper.ReadQuery(
+                "SELECT mid FROM accountmember WHERE accountmember.aid=@aid",
+                reader =>
+                {
+                    memberdata m = new memberdata();
+                    m.mid = reader[0].ToString();
+                    retVal.Add(m);
+                },
+                DbHelper.Param("@aid", a)
+            );
 
             return retVal.ToArray();
         }
-
-        }
-
-    
+    }
 }

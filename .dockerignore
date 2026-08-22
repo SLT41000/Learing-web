@@ -1,0 +1,24 @@
+# ============================================================
+# Learing Web - .dockerignore
+# ============================================================
+# Exclude files/directories from Docker build context
+
+**/bin/
+**/obj/
+**/packages/
+*.user
+*.suo
+*.dll
+*.pdb
+*.exe
+*.cache
+*.vs/
+*.idea/
+/.vs/
+/.vscode/
+.DS_Store
+Thumbs.db
+*.log
+*.config.transform
+*.Release.config
+*.Debug.config
