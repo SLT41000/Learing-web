@@ -1,0 +1,36 @@
+# ============================================================
+# Learing Web - .gitignore
+# ============================================================
+# Exclude generated, user-specific, and secret files
+
+### .NET build artifacts ###
+**/bin/
+**/obj/
+*.dll
+*.pdb
+*.exe
+*.user
+*.suo
+
+### IDE ###
+.vs/
+.vscode/
+*.idea/
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Logs ###
+*.log
+*.txt
+
+### Connection strings — NEVER commit!
+ConnectionStrings.config
+
+### SQL dump files ###
+*.sql
+
+### Local environment ###
+.env
+.env.local

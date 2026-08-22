@@ -1,0 +1,35 @@
+# ============================================================
+# LearingWeb - .gitattributes
+# ============================================================
+* text=auto
+
+*.cs text eol=lf
+*.cshtml text eol=lf
+*.csproj text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.config text eol=lf
+*.md text eol=lf
+Dockerfile text eol=lf
+docker-compose.yml text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.jfif binary
+*.gif binary
+*.ico binary
+*.svg text
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.otf binary
+
+*.png linguist-vendored
+*.jpg linguist-vendored
+*.jpeg linguist-vendored
+*.jfif linguist-vendored
+img/* linguist-vendored

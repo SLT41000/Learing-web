@@ -1,0 +1,141 @@
+@model LearingWeb.Pages.IndexModel
+@{
+    ViewData["Title"] = "Learing Web - Home";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" />
+    <link href="~/css/site.css" rel="stylesheet" />
+</head>
+<body class="bg-secondary text-white">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Learing Web</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    @if (!string.IsNullOrEmpty(Model.UserName))
+                    {
+                        <li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/catalog">Catalog</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/certificate">Certificate</a></li>
+                        <li class="nav-item">
+                            <form method="post" action="/logout">
+                                <button type="submit" class="nav-link btn btn-link nav-link" style="background:none;border:none;color:#fff;text-decoration:underline;">
+                                    Log out (@Model.UserName)
+                                </button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/signin">Sign in</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="wrapper">
+        <div class="container-fostrap">
+            <div class="content">
+                <div class="container">
+                    <div class="main-card">
+                        <!-- Subject filter -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <form method="get">
+                                    <label for="classDrpDwn" class="text-muted mr-2">Subject:</label>
+                                    <select id="classDrpDwn" name="subject" class="form-control"
+                                            onchange="this.form.submit()">
+                                        <option value="">All subjects</option>
+                                        <option value="1">Physics</option>
+                                        <option value="2">Chemical</option>
+                                        <option value="3">Biology</option>
+                                        <option value="4">Calculus</option>
+                                        <option value="5">Statistics</option>
+                                        <option value="6">Applied Mathematics</option>
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Video cards -->
+                        <div class="row" id="cardsRow">
+                            @if (Model.GDATA != null && Model.GDATA.Any())
+                            {
+                                foreach (var item in Model.GDATA)
+                                {
+                                    if (!string.IsNullOrEmpty(Model.SelectedSubject) && item.Mid != Model.SelectedSubject)
+                                        continue;
+
+                                    var subjectImages = new Dictionary<string, string>
+                                    {
+                                        { "1", "img/phy.png" },
+                                        { "2", "img/Chemical.png" },
+                                        { "3", "img/Biology.jfif" },
+                                        { "4", "img/Calculus.png" },
+                                        { "5", "img/Stt.png" },
+                                        { "6", "img/Applied mathematics.jfif" }
+                                    };
+
+                                    var imgPath = subjectImages.GetValueOrDefault(item.Mid, "img/phy.png");
+
+                                    var link = !string.IsNullOrEmpty(Model.UserName)
+                                        ? $"/watch?v={Uri.EscapeDataString(item.Vid)}&vname={Uri.EscapeDataString(item.Vname)}&vlink={Uri.EscapeDataString(item.Vlink)}&vdes={Uri.EscapeDataString(item.Description)}"
+                                        : "/login";
+
+                                    <div class="col-xs-12 col-sm-4 col-md-3 mb-4">
+                                        <div class="card h-100">
+                                            <a class="img-card" href="@link">
+                                                <img src="@imgPath" class="card-img-top" alt="@item.Vname" />
+                                            </a>
+                                            <div class="card-body">
+                                                <h4 class="card-title">
+                                                    <a href="@link" class="text-dark" style="text-decoration:none;">@item.Vname</a>
+                                                </h4>
+                                                @if (!string.IsNullOrEmpty(item.Description))
+                                                {
+                                                    <p class="text-muted small">@item.Description</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else if (!Model.Loading)
+                            {
+                                <div class="col-12 text-center py-5">
+                                    <p class="text-muted">No courses available.</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-12 text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                    <p class="mt-2 text-muted">Loading courses...</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

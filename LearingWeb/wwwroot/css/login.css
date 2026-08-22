@@ -1,0 +1,17 @@
+/*
+ * Learing Web — Login Page Styles
+ */
+body.login-page {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh;
+}
+
+.card.login-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.login-card .card-body {
+    background: rgba(255,255,255,0.05);
+}

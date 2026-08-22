@@ -1,0 +1,100 @@
+@page
+@model LearingWeb.Pages.WatchModel
+@{
+    ViewData["Title"] = "Watch - Learing Web";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" />
+    <link href="~/css/site.css" rel="stylesheet" />
+    <style>
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+            background: #000;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Learing Web</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/catalog">Catalog</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/certificate">Certificate</a></li>
+                    <li class="nav-item">
+                        <form method="post" action="/logout">
+                            <button type="submit" class="nav-link btn btn-link" style="background:none;border:none;color:#fff;text-decoration:underline;">
+                                Log out (@Model.UserName)
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="wrapper">
+        <div class="container-fostrap">
+            <div class="content">
+                <div class="container">
+                    <div class="main-card">
+                        @if (Model.Authorized)
+                        {
+                            <div class="video-container">
+                                <iframe src="@Model.VideoLink" allowfullscreen="allowfullscreen"
+                                        frameborder="0" title="Video player">
+                                </iframe>
+                            </div>
+
+                            <div class="mt-4">
+                                <h2 class="text-light mb-2">@Model.VideoName</h2>
+                                @if (!string.IsNullOrEmpty(Model.Description))
+                                {
+                                    <p class="text-muted mb-3">@Model.Description</p>
+                                }
+
+                                <form method="post" action="/api/checkin" class="d-inline">
+                                    <input type="hidden" name="vid" value="@Model.VideoId" />
+                                    <button type="submit" class="btn btn-primary">Check In</button>
+                                </form>
+                                <form method="post" action="/api/mark-watched" class="d-inline">
+                                    <input type="hidden" name="vid" value="@Model.VideoId" />
+                                    <button type="submit" class="btn btn-success">Mark as Watched</button>
+                                </form>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <h3 class="text-muted">Please log in to watch videos</h3>
+                                <a href="/login" class="btn btn-primary mt-2">Log In</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

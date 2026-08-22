@@ -1,0 +1,40 @@
+/*
+ * Learing Web - Login/Signup Page Styles
+ */
+body.auth-page {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh;
+}
+
+.auth-card {
+    max-width: 440px;
+    margin: 80px auto;
+}
+.auth-card .card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.auth-card .card-body {
+    background: rgba(255,255,255,0.05);
+    padding: 32px;
+}
+
+.subject-checkboxes label {
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 8px;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 0.9rem;
+}
+.subject-checkboxes label:hover { background: rgba(255,255,255,0.2); }
+
+.subject-checkboxes input[type="checkbox"] {
+    margin-right: 6px;
+    accent-color: #56baed;
+    transform: scale(1.1);
+}
