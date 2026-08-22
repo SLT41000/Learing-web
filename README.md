@@ -45,21 +45,66 @@ Learing-web/
 
 ## Tech Stack
 
-- **Framework**: ASP.NET Web Forms (.NET Framework)
+- **Framework**: ASP.NET Web Forms (.NET Framework 4.7.2)
 - **Frontend**: Bootstrap 4.6.1, jQuery 3.6.0, custom CSS
 - **Backend**: C# code-behind, WCF Services (REST/JSON)
 - **Database**: SQL Server (via ADO.NET with parameterized queries)
 - **Authentication**: ASP.NET Session state
 
-## Security Improvements
+## Docker
 
-All SQL queries now use parameterized statements to prevent SQL injection. The legacy string-concatenation queries have been replaced with `DbHelper` utility methods.
+This project requires **Windows containers** because it targets .NET Framework 4.8, which does not run on Linux.
 
-## Getting Started
+### Prerequisites
 
-1. Open the solution in Visual Studio
-2. Configure the SQL Server connection string in `web.config` (key: `strconn`)
-3. Build and run on IIS Express or deploy to IIS
+- **Docker Desktop** installed and running
+- Docker Desktop must be in **Windows containers mode** (Settings -> General -> "Use Windows containers")
+
+### Build and Run (Single Container)
+
+```powershell
+# Build the image
+docker build -t learning-web .
+
+# Run it (will use local SQL Server via integrated security)
+docker run -d -p 8080:80 --name learning-web learning-web
+```
+
+Access at `http://localhost:8080`
+
+### Build and Run with SQL Server (Docker Compose)
+
+```powershell
+# Start both app and SQL Server
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop everything
+docker compose down
+
+# Stop and wipe database
+docker compose down -v
+```
+
+Access the web app at `http://localhost:8080`
+
+The database is accessible at `localhost:1433` with:
+- User: `sa`
+- Password: `YourStrong@Passw0rd1`
+
+### Connection String
+
+The connection string is configured via the `ConnectionString` environment variable or through `ConnectionStrings.config` (mounted as a volume). The default in `docker-compose.yml` connects to the included SQL Server container. For production, replace the connection string with your actual SQL Server credentials.
+
+### Switching Docker Desktop to Windows Containers
+
+If you see `no match for platform in manifest` errors:
+1. Right-click the Docker tray icon
+2. Select **"Switch to Windows containers..."**
+3. Restart Docker Desktop
+4. Try `docker build .` again
 
 ## API Endpoints
 
