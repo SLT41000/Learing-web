@@ -50,3 +50,6 @@ Learing web/ConnectionStrings.config
 # Local environment files
 .env
 .env.local
+
+# ASP.NET Core launch settings (user-specific, machine-dependent)
+Properties/launchSettings.json
