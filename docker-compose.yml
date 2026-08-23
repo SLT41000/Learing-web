@@ -8,10 +8,10 @@ services:
       dockerfile: Dockerfile
     container_name: learning-web
     ports:
-      - "8080:80"
+      - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=http://+:8080
       - CONNECTION_STRING=Server=sqlserver,1433;Database=Learningweb;User Id=sa;Password=YourStrong@Passw0rd1;TrustServerCertificate=True;
     depends_on:
       - sqlserver

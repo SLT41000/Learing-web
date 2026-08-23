@@ -2,7 +2,7 @@
 # Learing Web - Dockerfile (ASP.NET Core 8, Linux containers)
 # ============================================================
 # Build:   docker build -t learning-web .
-# Run:     docker run -d -p 8080:80 --name learning-web learning-web
+# Run:     docker run -d -p 8080:8080 --name learning-web learning-web
 # Compose: docker compose up -d
 # ============================================================
 
@@ -24,6 +24,9 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 
-EXPOSE 80
+EXPOSE 8080
+
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
 
 ENTRYPOINT ["dotnet", "LearingWeb.dll"]
