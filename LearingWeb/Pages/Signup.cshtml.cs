@@ -38,7 +38,7 @@ public class SignupModel : PageModel
 
         // Check if username already exists
         var existing = DbHelper.ExecuteQuery(
-            "SELECT COUNT(*) FROM account WHERE uname = @uname",
+            "SELECT COUNT(*) FROM dbo.account WHERE uname = @uname",
             new SqlParameter("@uname", Username)
         );
 
@@ -57,14 +57,14 @@ public class SignupModel : PageModel
 
         // Insert new account
         DbHelper.ExecuteNonQuery(
-            "INSERT INTO account (uname, password) VALUES (@uname, @password)",
+            "INSERT INTO dbo.account (uname, password) VALUES (@uname, @password)",
             new SqlParameter("@uname", Username),
             new SqlParameter("@password", Password)
         );
 
         // Get the new account's ID
         var newAcct = DbHelper.ExecuteQuery(
-            "SELECT * FROM account WHERE uname = @uname AND password = @password",
+            "SELECT * FROM dbo.account WHERE uname = @uname AND password = @password",
             new SqlParameter("@uname", Username),
             new SqlParameter("@password", Password)
         );
@@ -75,7 +75,7 @@ public class SignupModel : PageModel
         foreach (var subjectValue in SelectedSubjects)
         {
             DbHelper.ExecuteNonQuery(
-                "INSERT INTO accountmember (aid, mid) VALUES (@aid, @mid)",
+                "INSERT INTO dbo.accountmember (aid, mid) VALUES (@aid, @mid)",
                 new SqlParameter("@aid", aid),
                 new SqlParameter("@mid", int.Parse(subjectValue))
             );

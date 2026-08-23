@@ -20,7 +20,7 @@ public class CatalogModel : PageModel
         await Task.Run(() =>
         {
             DbHelper.ReadQuery(
-                "SELECT c.vid, c.ontime, v.vname FROM catalog AS c INNER JOIN video AS v ON (c.vid = v.vid) WHERE c.aid = @aid ORDER BY c.ontime DESC",
+                "SELECT c.vid, c.ontime, v.vname FROM dbo.catalog AS c INNER JOIN dbo.video AS v ON (c.vid = v.vid) WHERE c.aid = @aid ORDER BY c.ontime DESC",
                 reader =>
                 {
                     CatalogRows.Add(new CatalogData

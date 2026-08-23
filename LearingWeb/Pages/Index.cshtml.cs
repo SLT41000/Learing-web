@@ -28,7 +28,7 @@ public class IndexModel : PageModel
         await Task.Run(() =>
         {
             DbHelper.ReadQuery(
-                "SELECT vid, mid, vname, description, vlink FROM video",
+                "SELECT vid, mid, vname, vdesc, vfile FROM dbo.video",
                 reader =>
                 {
                     GDATA.Add(new ScreenData

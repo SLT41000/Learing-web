@@ -55,7 +55,7 @@ public class WatchModel : PageModel
 
         await Task.Run(() =>
             DbHelper.ExecuteNonQuery(
-                "INSERT INTO catalog (aid, vid, ontime) VALUES (@aid, @vid, @ontime)",
+                "INSERT INTO dbo.catalog (aid, vid, ontime) VALUES (@aid, @vid, @ontime)",
                 new SqlParameter("@aid", aid),
                 new SqlParameter("@vid", vid),
                 new SqlParameter("@ontime", ontime)

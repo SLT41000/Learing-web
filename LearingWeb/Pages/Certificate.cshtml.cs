@@ -20,7 +20,7 @@ public class CertificateModel : PageModel
         await Task.Run(() =>
         {
             DbHelper.ReadQuery(
-                "SELECT v.vname FROM watchcheck AS w INNER JOIN video AS v ON (v.vid = w.vid) WHERE w.aid = @aid AND w.alreadywatch = 1",
+                "SELECT v.vname FROM dbo.watchcheck AS w INNER JOIN dbo.video AS v ON (v.vid = w.vid) WHERE w.aid = @aid AND w.alreadywatch = 1",
                 reader =>
                 {
                     CompletedVideos.Add(new CompletedVideo

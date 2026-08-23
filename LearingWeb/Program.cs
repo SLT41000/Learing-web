@@ -85,7 +85,7 @@ app.MapGet("/api/videos", () =>
 {
     var videos = new List<ScreenData>();
     DbHelper.ReadQuery(
-        "SELECT vid, mid, vname, description, vlink FROM video",
+        " SELECT vid, mid, vname, vdesc, vfile FROM  dbo.video",
         reader =>
         {
             videos.Add(new ScreenData
@@ -109,7 +109,7 @@ app.MapGet("/api/catalog", (string? aid) =>
 
     var catalog = new List<CatalogData>();
     DbHelper.ReadQuery(
-        "SELECT c.vid, c.ontime, v.vname FROM catalog AS c INNER JOIN video AS v ON (c.vid = v.vid) WHERE c.aid = @aid",
+        "SELECT c.vid, c.ontime, v.vname FROM dbo.catalog AS c INNER JOIN dbo.video AS v ON (c.vid = v.vid) WHERE c.aid = @aid",
         reader =>
         {
             catalog.Add(new CatalogData
@@ -132,7 +132,7 @@ app.MapGet("/api/completed", (string? aid) =>
 
     var completed = new List<CompletedVideo>();
     DbHelper.ReadQuery(
-        "SELECT v.vname FROM watchcheck AS w INNER JOIN video AS v ON (v.vid = w.vid) WHERE w.aid = @aid AND w.alreadywatch = 1",
+        "SELECT v.vname FROM dbo.watchcheck AS w INNER JOIN dbo.video AS v ON (v.vid = w.vid) WHERE w.aid = @aid AND w.alreadywatch = 1",
         reader =>
         {
             completed.Add(new CompletedVideo
@@ -153,7 +153,7 @@ app.MapPost("/api/checkin", (string? vid, HttpContext http) =>
         return Results.Unauthorized();
 
     DbHelper.ExecuteNonQuery(
-        "INSERT INTO catalog (aid, vid, ontime) VALUES (@aid, @vid, @ontime)",
+        "INSERT INTO dbo.catalog (aid, vid, ontime) VALUES (@aid, @vid, @ontime)",
         new SqlParameter("@aid", aid),
         new SqlParameter("@vid", vid),
         new SqlParameter("@ontime", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"))
@@ -170,7 +170,7 @@ app.MapPost("/api/mark-watched", (string? vid, HttpContext http) =>
         return Results.Unauthorized();
 
     DbHelper.ExecuteNonQuery(
-        "UPDATE watchcheck SET alreadywatch = 1 WHERE aid = @aid AND vid = @vid",
+        "UPDATE dbo.watchcheck SET alreadywatch = 1 WHERE aid = @aid AND vid = @vid",
         new SqlParameter("@aid", aid),
         new SqlParameter("@vid", vid)
     );
