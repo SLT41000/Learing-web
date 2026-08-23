@@ -1,23 +1,22 @@
 version: "3.8"
 
 services:
-  # ---- ASP.NET Core Web App (Linux container) ----
   web:
     build:
       context: .
       dockerfile: Dockerfile
+    image: learning-web:latest
     container_name: learning-web
     ports:
       - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
-      - CONNECTION_STRING=Server=sqlserver,1433;Database=Learningweb;User Id=sa;Password=YourStrong@Passw0rd1;TrustServerCertificate=True;
+      - CONNECTION_STRING=Server=sqlserver,1433;Database=Learningweb;User Id=sa;Password=YourStrong@Passw0rd1;TrustServerCertificate=True;Encrypt=false;
     depends_on:
       - sqlserver
     restart: unless-stopped
 
-  # ---- SQL Server (Linux container) ----
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: learning-sqlserver

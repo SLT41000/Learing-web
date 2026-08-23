@@ -8,10 +8,22 @@ using LearingWeb;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure DbHelper connection string from appsettings or environment
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? Environment.GetEnvironmentVariable("CONNECTION_STRING")
+// Configure DbHelper connection string.
+// Priority: environment variable CONNECTION_STRING > appsettings.json > fallback.
+// In Docker, the env var is set by docker-compose and takes precedence.
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Server=localhost;Database=Learningweb;Trusted_Connection=True;TrustServerCertificate=True;";
+
+// Ensure connection string uses correct SQL Server port format (sqlserver,1433 not sqlserver:1433).
+// SqlClient parses "host:port" with a colon as part of the hostname, so use comma separator.
+// Also force Encrypt=false for SQL Server 2022 in Docker (no SSL cert configured).
+connectionString = connectionString
+    .Replace("Server=sqlserver:1433", "Server=sqlserver,1433")
+    .Replace("Encrypt=true", "Encrypt=false")
+    .Replace("Encrypt=True", "Encrypt=false");
+if (!connectionString.Contains("Encrypt=", StringComparison.OrdinalIgnoreCase))
+    connectionString += ";Encrypt=false";
 
 LearingWeb.DbHelper.ConnectionString = connectionString;
 
@@ -28,6 +40,30 @@ builder.Services.AddSession(options =>
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
+
+// Wait for SQL Server to be ready (retry loop for Docker Compose startup race)
+if (connectionString.Contains("sqlserver", StringComparison.OrdinalIgnoreCase) ||
+    connectionString.Contains("mssql", StringComparison.OrdinalIgnoreCase))
+{
+    var maxRetries = 30;
+    var retryDelay = 2000; // 2 seconds
+    for (var i = 0; i < maxRetries; i++)
+    {
+        try
+        {
+            using var con = new SqlConnection(connectionString);
+            con.Open();
+            con.Close();
+            break; // success
+        }
+        catch (SqlException)
+        {
+            if (i == maxRetries - 1)
+                throw; // give up after max retries
+            Thread.Sleep(retryDelay);
+        }
+    }
+}
 
 // Middleware pipeline
 if (!app.Environment.IsDevelopment())
