@@ -1,37 +1,49 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using LearingWeb;
 using Microsoft.Data.SqlClient;
 
 namespace LearingWeb.Pages;
 
 public class CertificateModel : PageModel
 {
-    public bool Loading { get; set; } = true;
-    public List<CompletedVideo> CompletedVideos { get; set; } = new();
+    public List<CompletedVideo> CompletedList { get; set; } = new();
+    public string UserName { get; set; } = "";
+    public int Id { get; set; }
 
-    public async Task OnGetAsync()
+    public void OnGet(int id)
     {
-        var aid = HttpContext.Session.GetString("aid");
-        if (string.IsNullOrEmpty(aid))
+        UserName = HttpContext.Session.GetString("uname") ?? "";
+        Id = id;
+        CompletedList = new List<CompletedVideo>();
+
+        if (!int.TryParse(id.ToString(), out var aid))
         {
-            Loading = false;
             return;
         }
 
-        await Task.Run(() =>
+        using (var conn = DbHelper.OpenConnection())
         {
-            DbHelper.ReadQuery(
-                "SELECT v.vname FROM dbo.watchcheck AS w INNER JOIN dbo.video AS v ON (v.vid = w.vid) WHERE w.aid = @aid AND w.alreadywatch = 1",
-                reader =>
+            conn.Open();
+            var cmd = new SqlCommand(
+                "SELECT w.vid, w.ontime, v.vname, v.vdesc, v.mid, s.mname " +
+                "FROM dbo.watchcheck w " +
+                "JOIN dbo.video v ON w.vid = v.vid " +
+                "JOIN dbo.subject s ON v.mid = s.mid " +
+                "WHERE w.aid = @aid AND w.alreadywatch = 1 ORDER BY v.vid", conn);
+            cmd.Parameters.AddWithValue("@aid", aid);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                CompletedList.Add(new CompletedVideo
                 {
-                    CompletedVideos.Add(new CompletedVideo
-                    {
-                        Vname = reader.IsDBNull(0) ? "" : reader.GetString(0)
-                    });
-                },
-                new SqlParameter("@aid", aid)
-            );
-        });
-
-        Loading = false;
+                    Vid = reader.GetInt32(0).ToString(),
+                    Ontime = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                    Vname = reader.GetString(2),
+                    Vdesc = reader.IsDBNull(3) ? "" : reader.GetString(3),
+                    MidName = reader.GetString(5)
+                });
+            }
+        }
     }
 }

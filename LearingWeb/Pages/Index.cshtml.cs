@@ -1,48 +1,61 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using LearingWeb;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace LearingWeb.Pages;
 
 public class IndexModel : PageModel
 {
-    public bool Loading { get; set; } = true;
-    public List<ScreenData> GDATA { get; set; } = new();
-    public string SelectedSubject { get; set; } = string.Empty;
-    public string UserName { get; set; } = string.Empty;
+    public List<ScreenData> Videos { get; set; } = new();
+    public Dictionary<int, SubjectData> Subjects { get; set; } = new();
+    public int? ActiveSubjectId { get; set; }
 
-    public async Task OnGetAsync(string? subject)
+    public void OnGet(int? subject = null)
     {
-        UserName = HttpContext.Session.GetString("uname") ?? "";
-        SelectedSubject = subject ?? "";
-        await LoadVideosAsync();
-    }
+        using var conn = DbHelper.OpenConnection();
+        conn.Open();
 
-    private async Task LoadVideosAsync()
-    {
-        Loading = true;
-        GDATA.Clear();
-
-        await Task.Run(() =>
+        using (var subjectCommand = new SqlCommand(
+            "SELECT mid, mname, description FROM dbo.subject ORDER BY mid", conn))
         {
-            DbHelper.ReadQuery(
-                "SELECT vid, mid, vname, vdesc, vfile FROM dbo.video",
-                reader =>
+            using var reader = subjectCommand.ExecuteReader();
+            while (reader.Read())
+            {
+                var id = reader.GetInt32(0);
+                Subjects[id] = new SubjectData
                 {
-                    GDATA.Add(new ScreenData
-                    {
-                        Vid = reader.GetString(0),
-                        Mid = reader.GetString(1),
-                        Vname = reader.IsDBNull(2) ? "" : reader.GetString(2),
-                        Description = reader.IsDBNull(3) ? "" : reader.GetString(3),
-                        Vlink = reader.IsDBNull(4) ? "" : reader.GetString(4)
-                    });
-                }
-            );
-        });
+                    Cid = id.ToString(),
+                    Cname = reader.GetString(1),
+                    Cdsc = reader.IsDBNull(2) ? "" : reader.GetString(2)
+                };
+            }
+        }
 
-        Loading = false;
+        ActiveSubjectId = subject.HasValue && Subjects.ContainsKey(subject.Value)
+            ? subject
+            : null;
+
+        using (var videoCommand = new SqlCommand(
+            "SELECT v.vid, v.mid, v.vname, v.vdesc, v.vfile " +
+            "FROM dbo.video v WHERE (@mid IS NULL OR v.mid = @mid) ORDER BY v.vid",
+            conn))
+        {
+            videoCommand.Parameters.Add("@mid", SqlDbType.Int).Value =
+                (object?)ActiveSubjectId ?? DBNull.Value;
+            using var reader = videoCommand.ExecuteReader();
+            while (reader.Read())
+            {
+                Videos.Add(new ScreenData
+                {
+                    Vid = reader.GetInt32(0).ToString(),
+                    Mid = reader.GetInt32(1).ToString(),
+                    Vname = reader.GetString(2),
+                    Vdesc = reader.IsDBNull(3) ? "" : reader.GetString(3),
+                    Vlink = reader.IsDBNull(4) ? "" : reader.GetString(4)
+                });
+            }
+        }
     }
 }

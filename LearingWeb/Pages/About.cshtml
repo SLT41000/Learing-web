@@ -1,74 +1,142 @@
 @page
 @model LearingWeb.Pages.AboutModel
 @{
-    ViewData["Title"] = "About - Learing Web";
+    ViewData["Title"] = "About Son Heung-min — Son Heung-min Learning";
+    var userName = HttpContext.Session.GetString("uname");
 }
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" />
-    <link href="~/css/site.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        .about-hero { background: #1b2a6b; color: white; padding: 40px 0; text-align: center; }
+        .about-hero h1 { font-weight: 700; letter-spacing: -.5px; }
+        .about-body { padding: 20px 0 60px 0; }
+        h4 { color: #1b2a6b; border-bottom: 2px solid #fb8a00; padding-bottom: 4px; }
+        .timeline { padding-left: 20px; }
+        .timeline li { margin-bottom: 10px; }
+        .quote { font-size: 1.05rem; color: #495057; font-style: italic; border-left: 4px solid #fb8a00; padding-left: 16px; margin-top: 8px; }
+        .footer-note { border-top: 1px solid #dee2e6; margin-top: 30px; padding: 20px 0; color: #6c757d; font-size: .85rem; text-align: center; }
+    </style>
 </head>
-<body class="bg-secondary text-white">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<body>
+    <div class="about-hero">
         <div class="container">
-            <a class="navbar-brand" href="/">Learing Web</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/signin">Sign in</a></li>
-                </ul>
+            <h1>About Son Heung-min</h1>
+            <p class="lead">The man, the journey, the English learner</p>
+            <div style="margin-top: 12px;">
+                @if (string.IsNullOrWhiteSpace(userName))
+                {
+                    <a asp-page="/Login" class="btn btn-light me-2">Login</a>
+                    <a asp-page="/Signin" class="btn btn-warning">Sign up</a>
+                }
+                else
+                {
+                    <span class="text-white">Hello, @userName!</span>
+                    <form method="post" asp-page="/Logout" class="d-inline">
+                        <button class="btn btn-light ms-2" type="submit">Logout</button>
+                    </form>
+                }
             </div>
         </div>
-    </nav>
+    </div>
+    <div class="container about-body">
+        <h4>Who is Son Heung-min?</h4>
+        <p class="lead">
+            Son Heung-min is a South Korean professional footballer who plays as a forward for the Los Angeles FC club
+            and captains the South Korea national team. He is widely regarded as one of the best Asian footballers of all time.
+        </p>
 
-    <section class="wrapper">
-        <div class="container-fostrap">
-            <div class="content">
-                <div class="container">
-                    <div class="main-card">
-                        <div class="text-center py-5">
-                            <h1 class="display-4 font-weight-bold" style="color:#ffc107;">About Learing Web</h1>
-                            <hr class="my-4" />
-                            <p class="lead text-muted">
-                                Learing Web is a learning management platform built with ASP.NET Core 8.
-                                It helps students discover courses, track their progress, and earn certificates.
-                            </p>
-                            <p class="text-muted mt-3">
-                                Built for cross-platform deployment — runs on Linux, Windows, and Docker containers.
-                            </p>
-                            <hr class="my-4" />
-                            <div class="row text-center">
-                                <div class="col-md-4">
-                                    <h5 class="text-light">📚 Course Library</h5>
-                                    <p class="text-muted">Browse physics, chemistry, biology, calculus, statistics, and applied mathematics.</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <h5 class="text-light">🎓 Certificates</h5>
-                                    <p class="text-muted">Earn certificates when you complete video courses.</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <h5 class="text-light">📊 Progress Tracking</h5>
-                                    <p class="text-muted">Track your watch history and completed courses.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+        <h4>Early Life — Chuncheon, South Korea</h4>
+        <p>
+            Son was born on 8 July 1992 in Chuncheon, Gangwon Province. His father, Son Woong-jung, was a former professional player
+            who trained Son and his brother rigorously from a very young age — running along the beach, doing one-legged squats,
+            and practicing ball control for hours every day. Son attended the Son Football Academy, which his father founded.
+        </p>
+        <p class="quote">
+            "My father never wanted me to be a child who just plays football. He wanted me to be a real footballer."
+        </p>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+        <h4>FC Seoul Youth & Hamburg SV</h4>
+        <p>
+            At age 16, Son moved to Germany alone. He joined Hamburger SV, then Bayer Leverkusen.
+            He learned German by watching SpongeBob SquarePants in German and through daily life in Germany.
+            His breakthrough came in the 2012-2013 season at Leverkusen, when he scored on his Bundesliga debut.
+        </p>
+
+        <h4>Tottenham Hotspur — Ten Years at Spurs</h4>
+        <p>
+            Son joined Tottenham Hotspur in 2015 for a fee reported at around €22 million. He became the club's all-time
+            top Asian scorer, won the Premier League Puskás Award in 2020 for a stunning solo goal against Bournemouth,
+            and was named club captain in 2023. A first-team regular for nearly a decade, Son became the face of Spurs.
+        </p>
+        <p class="quote">
+            "I want to be a good captain — to lead the team, to encourage all players, and to be a good example."
+        </p>
+
+        <h4>South Korea National Team & Captaincy</h4>
+        <p>
+            Son made his senior debut for the South Korea national team in 2010. He captained the side to a
+            gold medal in football at the 2018 Asian Games — which granted him exemption from mandatory military service.
+            Son has represented Korea at multiple FIFA World Cups, including 2014, 2018, and 2022.
+        </p>
+        <p class="quote">
+            "I am very proud to be captain. I want to be a good captain — to lead the team, to encourage all players,
+            to be a good example, to respect our fans, and to be a good ambassador for our country."
+        </p>
+
+        <h4>Language & Communication</h4>
+        <p>
+            Son is fluent in Korean, German, and English. Cambridge University Press even made a video about his language journey.
+            In English interviews, Son speaks confidently — and he has said:
+        </p>
+        <p class="quote">
+            "Of course you will make mistakes, but it's most important you try and then fix the problems. And please tell
+            British people — or any English people — please speak a little bit more slowly, please."
+        </p>
+
+        <h4>Awards</h4>
+        <ul class="timeline">
+            <li>2020 — Premier League Puskás Award</li>
+            <li>2020 — Asian Footballer of the Year (3rd time)</li>
+            <li>2022 — Asian Games Gold Medal (as captain)</li>
+            <li>2023 — Tottenham Hotspur Captain</li>
+            <li>Multiple Premier League selections, AFC Asian Cup, FIFA World Cup appearances</li>
+        </ul>
+
+        <h4>Philanthropy</h4>
+        <p>
+            Son established the Son Heung-min Scholarship Foundation to help young footballers in Korea.
+            He has donated regularly to local communities, supported children's hospitals, and participated in charity campaigns
+            both in Korea and internationally.
+        </p>
+
+        <h4>The Moment — Granting Military Exemption</h4>
+        <p>
+            At the 2018 Asian Games football final against Japan, Son scored the winning goal in the 90th minute —
+            helping Korea win gold. It was a huge moment, because South Korea's top male athletes are required to serve
+            in the military. Winning gold at the Asian Games exempted Son from that service, allowing him to focus on his club career.
+        </p>
+
+        <h4>2025 — Moving to Los Angeles FC</h4>
+        <p>
+            In 2025, Son moved to Los Angeles FC. His debut goal was an instant classic. He speaks about new challenges,
+            teamwork, and his vision for the future of football. A new chapter begins in the United States.
+        </p>
+
+        <h4>Why this site exists</h4>
+        <p>
+            Son Heung-min Learning is an English learning website built around the real story of Son Heung-min.
+            Every video, every story, and every certificate on this site is about Son — because when you learn English
+            through a story you care about, learning becomes real.
+        </p>
+    </div>
+    <div class="footer-note">
+        © Son Heung-min Learning — 2026
+    </div>
 </body>
 </html>

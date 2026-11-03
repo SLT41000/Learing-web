@@ -1,15 +1,7 @@
-# ============================================================
-# Learing Web - Dockerfile (ASP.NET Core 8, Linux containers)
-# ============================================================
-# Build:   docker build -t learning-web .
-# Run:     docker run -d -p 8080:80 --name learning-web learning-web
-# Compose: docker compose up -d
-# ============================================================
-
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy csproj and restore (cached layer)
+# Restore (cached layer)
 COPY ["LearingWeb.csproj", "./"]
 RUN dotnet restore "LearingWeb.csproj"
 
@@ -19,9 +11,8 @@ RUN dotnet publish "LearingWeb.csproj" -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-
 COPY --from=build /app/publish .
 
-EXPOSE 80
+EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "LearingWeb.dll"]

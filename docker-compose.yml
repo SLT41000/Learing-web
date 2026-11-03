@@ -1,33 +1,39 @@
-version: "3.8"
-
 services:
   web:
     build:
-      context: .
+      context: ./LearingWeb
       dockerfile: Dockerfile
     image: learning-web:latest
-    container_name: learning-web
     ports:
-      - "8080:8080"
+      - "${WEB_PORT:-8080}:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:8080
-      - CONNECTION_STRING=Server=sqlserver,1433;Database=Learningweb;User Id=sa;Password=YourStrong@Passw0rd1;TrustServerCertificate=True;Encrypt=false;
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      CONNECTION_STRING: "Server=sqlserver,1433;Database=Learningweb;User Id=sa;Password=${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in .env};TrustServerCertificate=True;Encrypt=False;"
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_healthy
     restart: unless-stopped
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: learning-sqlserver
+    platform: linux/amd64
     ports:
-      - "1433:1433"
+      - "127.0.0.1:${SQLSERVER_PORT:-1433}:1433"
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong@Passw0rd1
-      - MSSQL_PID=Developer
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in .env}
+      MSSQL_PID: Developer
     volumes:
       - sql-data:/var/opt/mssql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
     restart: unless-stopped
 
 volumes:

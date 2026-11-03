@@ -1,119 +1,138 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using LearingWeb;
 using Microsoft.Data.SqlClient;
+using BCrypt.Net;
 
 namespace LearingWeb.Pages;
 
 public class SigninModel : PageModel
 {
-    [BindProperty] public string Username { get; set; } = string.Empty;
-    [BindProperty] public string Password { get; set; } = string.Empty;
-    [BindProperty] public string[] Mids { get; set; } = Array.Empty<string>();
+    [BindProperty]
+    public string Username { get; set; } = string.Empty;
 
-    public string? ErrorMessage { get; set; }
-    public string? SuccessMessage { get; set; }
+    [BindProperty]
+    public string Password { get; set; } = string.Empty;
 
-    public async Task<IActionResult> OnPostAsync()
+    [BindProperty]
+    public string PasswordConfirm { get; set; } = string.Empty;
+
+    public List<SubjectData> Subjects { get; set; } = new();
+    public Dictionary<int, string> SelectedSubjects { get; set; } = new();
+    public string SuccessMessage { get; set; } = string.Empty;
+    public string ErrorMessage { get; set; } = string.Empty;
+
+    public void OnGet()
     {
-        if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password))
+        LoadSubjects();
+    }
+
+    private void LoadSubjects()
+    {
+        Subjects.Clear();
+        using var conn = DbHelper.OpenConnection();
+        conn.Open();
+        var cmd = new SqlCommand("SELECT mid, mname, description FROM dbo.subject ORDER BY mid", conn);
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
         {
-            ErrorMessage = "Username or password should not be empty";
-            return Page();
-        }
-
-        // Check if username already exists (parameterized)
-        var existing = await Task.Run(() =>
-            DbHelper.ExecuteQuery(
-                "SELECT COUNT(*) FROM account WHERE uname = @uname",
-                new SqlParameter("@uname", Username)
-            )
-        );
-
-        if (int.Parse(existing.Rows[0][0].ToString()!) > 0)
-        {
-            ErrorMessage = "This username already exists!";
-            return Page();
-        }
-
-        if (Mids.Length == 0)
-        {
-            ErrorMessage = "You must select at least one subject";
-            return Page();
-        }
-
-        // Insert new account (parameterized)
-        await Task.Run(() =>
-            DbHelper.ExecuteNonQuery(
-                "INSERT INTO account (uname, password) VALUES (@uname, @password)",
-                new SqlParameter("@uname", Username),
-                new SqlParameter("@password", Password)
-            )
-        );
-
-        // Get the new account's ID
-        var newAcct = await Task.Run(() =>
-            DbHelper.ExecuteQuery(
-                "SELECT * FROM account WHERE uname = @uname AND password = @password",
-                new SqlParameter("@uname", Username),
-                new SqlParameter("@password", Password)
-            )
-        );
-
-        var aid = int.Parse(newAcct.Rows[0][0].ToString()!);
-
-        // Insert account-member relationships (parameterized)
-        foreach (var midValue in Mids)
-        {
-            if (int.TryParse(midValue, out var mid))
+            Subjects.Add(new SubjectData
             {
-                await Task.Run(() =>
-                    DbHelper.ExecuteNonQuery(
-                        "INSERT INTO accountmember (aid, mid) VALUES (@aid, @mid)",
-                        new SqlParameter("@aid", aid),
-                        new SqlParameter("@mid", mid)
-                    )
-                );
-            }
+                Cid = reader.GetInt32(0).ToString(),
+                Cname = reader.GetString(1),
+                Cdsc = reader.IsDBNull(2) ? "" : reader.GetString(2)
+            });
+        }
+    }
+
+    public IActionResult OnPost()
+    {
+        if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password) || string.IsNullOrEmpty(PasswordConfirm))
+        {
+            ErrorMessage = "모든 필드를 입력해주세요.";
+            LoadSubjects();
+            return Page();
         }
 
-        // Set session
-        HttpContext.Session.SetString("uname", Username);
-        HttpContext.Session.SetString("aid", aid.ToString());
-
-        // Create watchcheck entries for all videos in enrolled subjects
-        foreach (var midValue in Mids)
+        if (Password.Length < 6)
         {
-            if (int.TryParse(midValue, out var mid))
-            {
-                var videos = await Task.Run(() =>
-                {
-                    var vlist = new List<VidData>();
-                    DbHelper.ReadQuery(
-                        "SELECT v.vid FROM video AS v WHERE v.mid = @mid",
-                        reader => vlist.Add(new VidData { Vid = reader.GetString(0), Mid = midValue }),
-                        new SqlParameter("@mid", mid)
-                    );
-                    return vlist;
-                });
+            ErrorMessage = "비밀번호는 6자 이상이어야 합니다.";
+            LoadSubjects();
+            return Page();
+        }
 
-                foreach (var v in videos)
+        if (Password != PasswordConfirm)
+        {
+            ErrorMessage = "비밀번호가 일치하지 않습니다.";
+            LoadSubjects();
+            return Page();
+        }
+
+        if (Username.Length < 3 || Username.Length > 50)
+        {
+            ErrorMessage = "사용자명은 3~50자 사이여야 합니다.";
+            LoadSubjects();
+            return Page();
+        }
+
+        string hashedPassword;
+        try
+        {
+            hashedPassword = BCrypt.Net.BCrypt.HashPassword(Password, workFactor: 10);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"비밀번호 해싱 오류: {ex.Message}";
+            LoadSubjects();
+            return Page();
+        }
+
+        int newAid = -1;
+
+        using var conn = DbHelper.OpenConnection();
+        conn.Open();
+
+        var checkCmd = new SqlCommand("SELECT COUNT(*) FROM dbo.account WHERE uname = @uname", conn);
+        checkCmd.Parameters.AddWithValue("@uname", Username);
+        if ((int)checkCmd.ExecuteScalar() > 0)
+        {
+            ErrorMessage = "이미 존재하는 사용자명입니다.";
+            LoadSubjects();
+            return Page();
+        }
+
+        var insertCmd = new SqlCommand(
+            "INSERT INTO dbo.account (uname, password) VALUES (@uname, @pwd); SELECT CAST(SCOPE_IDENTITY() AS INT);", conn);
+        insertCmd.Parameters.AddWithValue("@uname", Username);
+        insertCmd.Parameters.AddWithValue("@pwd", hashedPassword);
+        newAid = (int)insertCmd.ExecuteScalar();
+
+        if (newAid < 0)
+        {
+            ErrorMessage = "계정 생성 실패.";
+            return Page();
+        }
+
+        var selected = Request.Form["subject"];
+        if (selected.Count > 0)
+        {
+            foreach (var val in selected)
+            {
+                if (int.TryParse(val, out var sid))
                 {
-                    await Task.Run(() =>
-                        DbHelper.ExecuteNonQuery(
-                            "INSERT INTO watchcheck (aid, vid, mid, alreadywatch) VALUES (@aid, @vid, @mid, @alreadywatch)",
-                            new SqlParameter("@aid", aid),
-                            new SqlParameter("@vid", v.Vid),
-                            new SqlParameter("@mid", v.Mid),
-                            new SqlParameter("@alreadywatch", 0)
-                        )
-                    );
+                    var memberCmd = new SqlCommand(
+                        "INSERT INTO dbo.accountmember (aid, mid) VALUES (@aid, @mid)", conn);
+                    memberCmd.Parameters.AddWithValue("@aid", newAid);
+                    memberCmd.Parameters.AddWithValue("@mid", sid);
+                    memberCmd.ExecuteNonQuery();
+                    SelectedSubjects[sid] = Subjects.FirstOrDefault(s => s.Cid == sid.ToString())?.Cname ?? "";
                 }
             }
         }
 
-        SuccessMessage = "Account created successfully! You can now login.";
-        return Redirect("/login");
+        SuccessMessage = "계정이 생성되었습니다!";
+        ViewData["Username"] = Username;
+        ViewData["Aid"] = newAid.ToString();
+
+        return RedirectToPage("/Login");
     }
 }

@@ -1,142 +1,192 @@
 @page
 @model LearingWeb.Pages.IndexModel
 @{
-    ViewData["Title"] = "Learing Web - Home";
+    var userName = HttpContext.Session.GetString("uname");
+    var accountId = HttpContext.Session.GetInt32("aid");
+    ViewData["Title"] = "Learing Web — Learn through the game";
 }
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f7fb" />
     <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" />
-    <link href="~/css/site.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
 </head>
-<body class="bg-secondary text-white">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">Learing Web</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    @if (!string.IsNullOrEmpty(Model.UserName))
-                    {
-                        <li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/catalog">Catalog</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/certificate">Certificate</a></li>
-                        <li class="nav-item">
-                            <form method="post" action="/logout">
-                                <button type="submit" class="nav-link btn btn-link nav-link" style="background:none;border:none;color:#fff;text-decoration:underline;">
-                                    Log out (@Model.UserName)
-                                </button>
-                            </form>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/signin">Sign in</a></li>
-                    }
-                </ul>
+<body>
+    <header class="site-header">
+        <nav class="navigation page-width" aria-label="Main navigation">
+            <a class="wordmark" asp-page="/Index" aria-label="Learing Web home">
+                <span class="wordmark-icon" aria-hidden="true">L</span>
+                <span>Learing<span class="wordmark-light">Web</span></span>
+            </a>
+            <div class="nav-links">
+                <a class="nav-link nav-link-current" asp-page="/Index">Learn</a>
+                <a class="nav-link" asp-page="/About">About</a>
+                @if (accountId is not null)
+                {
+                    <a class="nav-link" asp-page="/Catalog" asp-route-id="@accountId">My learning</a>
+                    <a class="nav-link" asp-page="/Certificate" asp-route-id="@accountId">Certificates</a>
+                }
             </div>
-        </div>
-    </nav>
+            <div class="nav-account">
+                @if (string.IsNullOrWhiteSpace(userName))
+                {
+                    <a class="sign-in-link" asp-page="/Login">Log in</a>
+                    <a class="button button-small" asp-page="/Signin">Create account</a>
+                }
+                else
+                {
+                    <span class="welcome-message">Hi, @userName</span>
+                    <form method="post" asp-page="/Logout">
+                        <button class="button button-small button-quiet" type="submit">Log out</button>
+                    </form>
+                }
+            </div>
+        </nav>
+    </header>
 
-    <section class="wrapper">
-        <div class="container-fostrap">
-            <div class="content">
-                <div class="container">
-                    <div class="main-card">
-                        <!-- Subject filter -->
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <form method="get">
-                                    <label for="classDrpDwn" class="text-muted mr-2">Subject:</label>
-                                    <select id="classDrpDwn" name="subject" class="form-control"
-                                            onchange="this.form.submit()">
-                                        <option value="">All subjects</option>
-                                        <option value="1">Physics</option>
-                                        <option value="2">Chemical</option>
-                                        <option value="3">Biology</option>
-                                        <option value="4">Calculus</option>
-                                        <option value="5">Statistics</option>
-                                        <option value="6">Applied Mathematics</option>
-                                    </select>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Video cards -->
-                        <div class="row" id="cardsRow">
-                            @if (Model.GDATA != null && Model.GDATA.Any())
-                            {
-                                foreach (var item in Model.GDATA)
-                                {
-                                    if (!string.IsNullOrEmpty(Model.SelectedSubject) && item.Mid != Model.SelectedSubject)
-                                        continue;
-
-                                    var subjectImages = new Dictionary<string, string>
-                                    {
-                                        { "1", "img/phy.png" },
-                                        { "2", "img/Chemical.png" },
-                                        { "3", "img/Biology.jfif" },
-                                        { "4", "img/Calculus.png" },
-                                        { "5", "img/Stt.png" },
-                                        { "6", "img/Applied mathematics.jfif" }
-                                    };
-
-                                    var imgPath = subjectImages.GetValueOrDefault(item.Mid, "img/phy.png");
-
-                                    var link = !string.IsNullOrEmpty(Model.UserName)
-                                        ? $"/watch?v={Uri.EscapeDataString(item.Vid)}&vname={Uri.EscapeDataString(item.Vname)}&vlink={Uri.EscapeDataString(item.Vlink)}&vdes={Uri.EscapeDataString(item.Description)}"
-                                        : "/login";
-
-                                    <div class="col-xs-12 col-sm-4 col-md-3 mb-4">
-                                        <div class="card h-100">
-                                            <a class="img-card" href="@link">
-                                                <img src="@imgPath" class="card-img-top" alt="@item.Vname" />
-                                            </a>
-                                            <div class="card-body">
-                                                <h4 class="card-title">
-                                                    <a href="@link" class="text-dark" style="text-decoration:none;">@item.Vname</a>
-                                                </h4>
-                                                @if (!string.IsNullOrEmpty(item.Description))
-                                                {
-                                                    <p class="text-muted small">@item.Description</p>
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
-                            }
-                            else if (!Model.Loading)
-                            {
-                                <div class="col-12 text-center py-5">
-                                    <p class="text-muted">No courses available.</p>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="col-12 text-center py-5">
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="sr-only">Loading...</span>
-                                    </div>
-                                    <p class="mt-2 text-muted">Loading courses...</p>
-                                </div>
-                            }
-                        </div>
-                    </div>
+    <main>
+        <section class="hero page-width" aria-labelledby="hero-title">
+            <div class="hero-copy">
+                <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> A better way to learn English</p>
+                <h1 id="hero-title">Learn from the moments <span>that move you.</span></h1>
+                <p class="hero-description">
+                    Build your English through the real stories, interviews, and career of football star Son Heung-min.
+                    Watch a short lesson, pick up a phrase, and keep your progress.
+                </p>
+                <div class="hero-actions">
+                    <a class="button" href="#courses">Explore lessons <span aria-hidden="true">↓</span></a>
+                    @if (accountId is null)
+                    {
+                        <a class="text-action" asp-page="/Signin">Create a free account <span aria-hidden="true">→</span></a>
+                    }
+                </div>
+                <div class="hero-note">
+                    <span class="avatar-stack" aria-hidden="true"><span>S</span><span>E</span><span>✓</span></span>
+                    <span>Watch at your pace. Progress is yours to keep.</span>
                 </div>
             </div>
-        </div>
-    </section>
+            <div class="hero-art" aria-hidden="true">
+                <div class="art-glow"></div>
+                <div class="art-ball">01</div>
+                <div class="art-line art-line-one"></div>
+                <div class="art-line art-line-two"></div>
+                <div class="art-label"><span>LEARN</span><span>·</span><span>PLAY</span><span>·</span><span>GROW</span></div>
+                <div class="art-caption"><span class="caption-dot"></span> Your next lesson starts here</div>
+            </div>
+        </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+        <section class="course-section page-width" id="courses" aria-labelledby="courses-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">The course library</p>
+                    <h2 id="courses-title">Choose your next lesson</h2>
+                    <p class="section-description">Explore a chapter of Son's journey or jump into a topic you love.</p>
+                </div>
+                @if (Model.ActiveSubjectId is not null)
+                {
+                    <a class="clear-filter" asp-page="/Index">Show all lessons <span aria-hidden="true">×</span></a>
+                }
+            </div>
+
+            <div class="subject-filters" aria-label="Filter lessons by topic">
+                <a class="filter-chip @(Model.ActiveSubjectId is null ? "filter-active" : "")"
+                   asp-page="/Index" aria-current="@(Model.ActiveSubjectId is null ? "true" : null)">All lessons</a>
+                @foreach (var subject in Model.Subjects)
+                {
+                    <a class="filter-chip @(Model.ActiveSubjectId == subject.Key ? "filter-active" : "")"
+                       asp-page="/Index" asp-route-subject="@subject.Key"
+                       aria-current="@(Model.ActiveSubjectId == subject.Key ? "true" : null)">
+                        @subject.Value.Cname
+                    </a>
+                }
+            </div>
+
+            <div class="catalog-toolbar">
+                <label class="search-box" for="courseSearch">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 4 4"></path></svg>
+                    <input id="courseSearch" type="search" placeholder="Search lessons..." aria-label="Search lessons" autocomplete="off" />
+                </label>
+                <p class="results-count" id="resultsCount" aria-live="polite">@Model.Videos.Count lesson@(Model.Videos.Count == 1 ? "" : "s")</p>
+            </div>
+
+            @if (Model.Videos.Count == 0)
+            {
+                <div class="empty-state">
+                    <span class="empty-icon" aria-hidden="true">✦</span>
+                    <h3>No lessons in this topic yet</h3>
+                    <p>Try another topic or view the full lesson library.</p>
+                    <a class="button button-small" asp-page="/Index">Show all lessons</a>
+                </div>
+            }
+            else
+            {
+                <div class="course-grid" id="courseGrid">
+                    @foreach (var video in Model.Videos)
+                    {
+                        var subject = Model.Subjects.Values.FirstOrDefault(item => item.Cid == video.Mid);
+                        var subjectName = subject?.Cname ?? "Featured lesson";
+                        <article class="course-card" data-search="@($"{video.Vname} {video.Vdesc} {subjectName}")">
+                            <div class="course-art course-art-@video.Mid">
+                                <span class="course-art-mark" aria-hidden="true">@(video.Mid == "1" ? "01" : video.Mid.PadLeft(2, '0'))</span>
+                                <span class="course-art-label">LEARNING SERIES</span>
+                                <span class="play-mark" aria-hidden="true">▶</span>
+                            </div>
+                            <div class="course-content">
+                                <span class="course-topic">@subjectName</span>
+                                <h3>@video.Vname</h3>
+                                <p>@(string.IsNullOrWhiteSpace(video.Vdesc) ? "Watch the story, learn a phrase, and practice your English." : video.Vdesc)</p>
+                                <div class="course-footer">
+                                    <span class="lesson-type"><span aria-hidden="true">◷</span> Video lesson</span>
+                                    <a class="watch-link" asp-page="/Watch" asp-route-id="@video.Vid"
+                                       aria-label="Watch lesson: @video.Vname">Watch <span aria-hidden="true">→</span></a>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+                <div class="empty-state search-empty" id="searchEmpty" hidden>
+                    <span class="empty-icon" aria-hidden="true">⌕</span>
+                    <h3>No matching lessons</h3>
+                    <p>Try a different title or topic.</p>
+                </div>
+            }
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="page-width footer-content">
+            <a class="wordmark footer-wordmark" asp-page="/Index">
+                <span class="wordmark-icon" aria-hidden="true">L</span>
+                <span>Learing<span class="wordmark-light">Web</span></span>
+            </a>
+            <p>Learn a little. Grow a lot. © @DateTime.Now.Year Learing Web</p>
+        </div>
+    </footer>
+
+    <script>
+        const searchInput = document.getElementById("courseSearch");
+        const courseCards = Array.from(document.querySelectorAll(".course-card"));
+        const searchEmpty = document.getElementById("searchEmpty");
+        const resultsCount = document.getElementById("resultsCount");
+
+        searchInput?.addEventListener("input", () => {
+            const query = searchInput.value.trim().toLocaleLowerCase();
+            let visibleCount = 0;
+
+            for (const card of courseCards) {
+                const matches = card.dataset.search.toLocaleLowerCase().includes(query);
+                card.hidden = !matches;
+                if (matches) visibleCount++;
+            }
+
+            if (searchEmpty) searchEmpty.hidden = visibleCount !== 0;
+            if (resultsCount) {
+                resultsCount.textContent = `${visibleCount} lesson${visibleCount === 1 ? "" : "s"}`;
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,28 @@
+@page
+@model LearingWeb.Pages.LogoutModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Log out — Learing Web";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/auth-modern.css" asp-append-version="true" />
+</head>
+<body>
+    <main class="auth-shell">
+        <section class="auth-card" aria-labelledby="logout-title">
+            <p class="auth-eyebrow">See you next time</p>
+            <h1 id="logout-title">Log out of Learing Web?</h1>
+            <p class="auth-intro">Your learning progress will still be here when you return.</p>
+            <form method="post" asp-page="/Logout" class="auth-form">
+                <button class="auth-submit" type="submit">Log out</button>
+            </form>
+            <p class="auth-bottom"><a asp-page="/Index">Stay and keep learning</a></p>
+        </section>
+    </main>
+</body>
+</html>

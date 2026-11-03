@@ -1,95 +1,76 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using LearingWeb;
 using Microsoft.Data.SqlClient;
 
 namespace LearingWeb.Pages;
 
 public class LoginModel : PageModel
 {
-    [BindProperty] public string Username { get; set; } = string.Empty;
-    [BindProperty] public string Password { get; set; } = string.Empty;
+    [BindProperty]
+    public string Username { get; set; } = string.Empty;
 
-    public string? ErrorMessage { get; set; }
+    [BindProperty]
+    public string Password { get; set; } = string.Empty;
 
-    public async Task<IActionResult> OnPostAsync()
+    public string ErrorMessage { get; set; } = string.Empty;
+    public string SuccessMessage { get; set; } = string.Empty;
+
+    public IActionResult OnPost()
     {
         if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password))
         {
-            ErrorMessage = "Username and password are required";
+            ErrorMessage = "사용자명과 비밀번호를 입력해주세요.";
             return Page();
         }
 
-        var dt = await Task.Run(() =>
-            DbHelper.ExecuteQuery(
-                "SELECT * FROM dbo.account WHERE uname = @uname AND password = @password",
-                new SqlParameter("@uname", Username),
-                new SqlParameter("@password", Password)
-            )
-        );
+        int? aid = null;
+        string? hashedPasswordFromDb = null;
 
-        if (dt.Rows.Count == 0)
+        try
         {
-            ErrorMessage = "Your username and password are incorrect";
-            return Page();
-        }
-
-        var aid = dt.Rows[0][0].ToString()!;
-
-        HttpContext.Session.SetString("uname", Username);
-        HttpContext.Session.SetString("aid", aid);
-
-        var mids = new List<string>();
-        await Task.Run(() =>
-        {
-            DbHelper.ReadQuery(
-                "SELECT mid FROM dbo.accountmember WHERE aid = @aid",
-                reader => mids.Add(reader.GetString(0)),
-                new SqlParameter("@aid", aid)
-            );
-        });
-
-        HttpContext.Session.SetString("mids", string.Join(",", mids));
-
-        var watchcheckCount = await Task.Run(() =>
-        {
-            var dt2 = DbHelper.ExecuteQuery(
-                "SELECT COUNT(*) FROM dbo.watchcheck WHERE aid = @aid",
-                new SqlParameter("@aid", aid)
-            );
-            return dt2.Rows[0][0].ToString();
-        });
-
-        if (watchcheckCount == "0")
-        {
-            foreach (var mid in mids)
+            using var conn = DbHelper.OpenConnection();
+            conn.Open();
+            var cmd = new SqlCommand(
+                "SELECT aid, password FROM dbo.account WHERE uname = @uname", conn);
+            cmd.Parameters.AddWithValue("@uname", Username);
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
             {
-                var videos = await Task.Run(() =>
-                {
-                    var vdt = new List<VidData>();
-                    DbHelper.ReadQuery(
-                        "SELECT v.vid FROM dbo.video AS v WHERE v.mid = @mid",
-                        reader => vdt.Add(new VidData { Vid = reader.GetString(0), Mid = mid }),
-                        new SqlParameter("@mid", mid)
-                    );
-                    return vdt;
-                });
-
-                foreach (var v in videos)
-                {
-                    await Task.Run(() =>
-                        DbHelper.ExecuteNonQuery(
-                            "INSERT INTO dbo.watchcheck (aid, vid, mid, alreadywatch) VALUES (@aid, @vid, @mid, @alreadywatch)",
-                            new SqlParameter("@aid", aid),
-                            new SqlParameter("@vid", v.Vid),
-                            new SqlParameter("@mid", v.Mid),
-                            new SqlParameter("@alreadywatch", 0)
-                        )
-                    );
-                }
+                aid = reader.GetInt32(0);
+                hashedPasswordFromDb = reader.GetString(1);
             }
         }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"데이터베이스 오류: {ex.Message}";
+            return Page();
+        }
 
-        return Redirect("/");
+        if (aid == null || hashedPasswordFromDb == null)
+        {
+            ErrorMessage = "아이디 또는 비밀번호가 올바르지 않습니다.";
+            return Page();
+        }
+
+        bool verified;
+        try
+        {
+            verified = BCrypt.Net.BCrypt.Verify(Password, hashedPasswordFromDb);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"비밀번호 검증 오류: {ex.Message}";
+            return Page();
+        }
+
+        if (!verified)
+        {
+            ErrorMessage = "아이디 또는 비밀번호가 올바르지 않습니다.";
+            return Page();
+        }
+
+        HttpContext.Session.SetString("uname", Username);
+        HttpContext.Session.SetInt32("aid", aid.Value);
+        return RedirectToPage("/Index");
     }
 }

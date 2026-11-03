@@ -1,84 +1,76 @@
-@page
+@page "{id:int}"
 @model LearingWeb.Pages.CatalogModel
 @{
-    ViewData["Title"] = "Catalog - Learing Web";
+    ViewData["Title"] = "My learning — Learing Web";
+    var completedCount = Model.WatchedList.Count(item => item.Alreadywatch == "1");
+    var inProgressCount = Model.WatchedList.Count - completedCount;
 }
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" />
-    <link href="~/css/site.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/progress.css" asp-append-version="true" />
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">Learing Web</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/certificate">Certificate</a></li>
-                </ul>
+    <header class="progress-header">
+        <nav class="progress-nav" aria-label="Main navigation">
+            <a class="progress-brand" asp-page="/Index">Learing Web</a>
+            <div class="progress-nav-links">
+                <a asp-page="/Index">Explore lessons</a>
+                <a asp-page="/Certificate" asp-route-id="@Model.Id">Certificates</a>
+                <a asp-page="/About">About</a>
             </div>
-        </div>
-    </nav>
-
-    <section class="wrapper">
-        <div class="container-fostrap">
-            <div class="content">
-                <div class="container">
-                    <div class="main-card">
-                        <h2 class="mb-3">My Watch History</h2>
-                        <p class="text-muted mb-4">Videos you have started watching</p>
-
-                        @if (Model.Loading)
-                        {
-                            <div class="text-center py-4">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="sr-only">Loading...</span>
-                                </div>
-                                <p class="mt-2 text-muted">Loading your catalog...</p>
-                            </div>
-                        }
-                        else if (Model.CatalogRows.Any())
-                        {
-                            <table class="table table-dark table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Video Name</th>
-                                        <th>Date Watched</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @for (int i = 0; i < Model.CatalogRows.Count; i++)
-                                    {
-                                        <tr>
-                                            <td>@(i + 1)</td>
-                                            <td>@Model.CatalogRows[i].Vname</td>
-                                            <td>@Model.CatalogRows[i].Ontime</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        }
-                        else
-                        {
-                            <div class="text-center py-5 text-muted">
-                                <p class="lead">No videos watched yet.</p>
-                                <a href="/" class="btn btn-primary mt-2">Browse courses</a>
-                            </div>
-                        }
-                    </div>
-                </div>
+        </nav>
+    </header>
+    <main class="progress-main">
+        <div class="progress-heading">
+            <div>
+                <p class="progress-eyebrow">Your learning space</p>
+                <h1>My learning</h1>
+                <p>Keep going at your own pace@(string.IsNullOrWhiteSpace(Model.UserName) ? "." : $", {Model.UserName}.")</p>
             </div>
+            <a class="progress-button" asp-page="/Index">Find a lesson <span aria-hidden="true">&nbsp;→</span></a>
         </div>
-    </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+        <section class="progress-stats" aria-label="Learning summary">
+            <div class="stat-card"><span class="stat-label">Lessons started</span><strong class="stat-value">@Model.WatchedList.Count</strong></div>
+            <div class="stat-card"><span class="stat-label">In progress</span><strong class="stat-value">@inProgressCount</strong></div>
+            <div class="stat-card"><span class="stat-label">Completed</span><strong class="stat-value">@completedCount</strong></div>
+        </section>
+
+        @if (Model.WatchedList.Count == 0)
+        {
+            <section class="progress-empty">
+                <span class="progress-empty-icon" aria-hidden="true">✦</span>
+                <h2>Your learning journey starts here</h2>
+                <p>Check in to a lesson and it will appear here so you can pick up where you left off.</p>
+                <a class="progress-button" asp-page="/Index">Browse lessons</a>
+            </section>
+        }
+        else
+        {
+            <section class="lesson-list" aria-label="Lessons you've started">
+                @foreach (var lesson in Model.WatchedList)
+                {
+                    var completed = lesson.Alreadywatch == "1";
+                    <article class="lesson-row">
+                        <div>
+                            <span class="lesson-topic">@lesson.MidName</span>
+                            <a class="lesson-title" asp-page="/Watch" asp-route-id="@lesson.Vid">@lesson.Vname</a>
+                        </div>
+                        <span class="lesson-meta">@(string.IsNullOrWhiteSpace(lesson.Ontime) ? "Not started yet" : lesson.Ontime)</span>
+                        <div class="lesson-action">
+                            <span class="lesson-status @(completed ? "complete" : "")">@(completed ? "Completed" : "In progress")</span>
+                            <br />
+                            <a asp-page="/Watch" asp-route-id="@lesson.Vid">@(completed ? "Review" : "Continue") →</a>
+                        </div>
+                    </article>
+                }
+            </section>
+        }
+    </main>
+    <footer class="progress-footer">Your progress is saved to your account.</footer>
 </body>
 </html>
